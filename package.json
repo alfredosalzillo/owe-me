@@ -10,6 +10,7 @@
     "check:write": "biome check --write"
   },
   "dependencies": {
+    "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
     "@mui/material-nextjs": "^7.2.0",
