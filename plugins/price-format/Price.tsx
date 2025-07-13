@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { FC } from 'react';
-import usePriceFormat from '@/plugins/price-format/usePriceFormat';
+import type { FC } from "react";
+import usePriceFormat from "@/plugins/price-format/usePriceFormat";
 
 export type PriceProps = {
   amount: number;

@@ -9,7 +9,11 @@ import {
   ListItemText,
   useTheme,
 } from "@mui/material";
+import { useDialogs } from "@toolpad/core/useDialogs";
+import { useRouter } from "next/navigation";
 import { FC } from "react";
+import ExpenseDialog, { ExpenseFormData } from "@/components/ExpenseDialog";
+import { updateExpense, updatePayment } from "@/plugins/api/expenses";
 import { Expense, User } from "@/plugins/api/types";
 import Price from "@/plugins/price-format/Price";
 
@@ -87,10 +91,13 @@ const expenseAction = (me: User, expense: Expense) => {
 type ExpenseItemProps = {
   expense: Expense;
   me: User;
+  groupId: string;
 };
 
-const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense }) => {
+const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense, groupId }) => {
   const theme = useTheme();
+  const dialogs = useDialogs();
+  const router = useRouter();
   // Use different styling for payments
   const isPayment = expense.type === "payment";
 
@@ -113,10 +120,96 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense }) => {
     return expense.description;
   };
 
+  // Handle edit button click
+  const handleEdit = async () => {
+    try {
+      // Convert expense to ExpenseFormData format
+      const initialData: Partial<ExpenseFormData> = {
+        type: expense.type,
+        description: expense.description || "",
+        amount: expense.amount,
+        currency: expense.currency,
+        paidBy: expense.paidBy.id,
+        paidAt: new Date(expense.paidAt).toISOString().split("T")[0],
+      };
+
+      if (expense.type === "standard") {
+        initialData.splitType = expense.splitType;
+        initialData.splits = expense.splits.map((split) => ({
+          userId: split.user.id,
+          amount: split.amount,
+          percentage: split.percentage,
+        }));
+      } else if (expense.type === "payment") {
+        initialData.toUser = expense.toUser.id;
+      }
+
+      // Open the dialog and wait for the result
+      const data = await dialogs.open(ExpenseDialog, {
+        groupId,
+        initialData,
+        currentUserId: me.id,
+        title: "Edit Expense",
+      });
+
+      if (!data) {
+        return;
+      }
+
+      // Update the expense based on the dialog result
+      if (data.type === "standard") {
+        const splits =
+          data.splits?.map((split) => ({
+            user: {
+              id: split.userId,
+              name: "", // This will be filled by the server
+            },
+            amount: split.amount,
+            percentage: split.percentage,
+          })) || [];
+
+        await updateExpense(groupId, expense.id, {
+          description: data.description,
+          amount: data.amount,
+          currency: data.currency,
+          paidBy: {
+            id: data.paidBy,
+            name: "", // This will be filled by the server
+          },
+          paidAt: new Date(data.paidAt),
+          splitType: data.splitType,
+          splits,
+        });
+      } else {
+        await updatePayment(groupId, expense.id, {
+          description: data.description,
+          amount: data.amount,
+          currency: data.currency,
+          paidBy: {
+            id: data.paidBy,
+            name: "", // This will be filled by the server
+          },
+          paidAt: new Date(data.paidAt),
+          toUser: {
+            id: data.toUser || "",
+            name: "", // This will be filled by the server
+          },
+        });
+      }
+
+      // Refresh the page to show the updated expense
+      router.refresh();
+    } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: allowed
+      console.error("Failed to update expense:", error);
+      // In a real app, you would show an error message to the user
+    }
+  };
+
   return (
     <ListItem
       secondaryAction={
-        <IconButton edge="end" aria-label="edit">
+        <IconButton edge="end" aria-label="edit" onClick={handleEdit}>
           <EditIcon />
         </IconButton>
       }

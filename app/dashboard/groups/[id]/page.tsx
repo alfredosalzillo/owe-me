@@ -1,4 +1,5 @@
 import {
+  Box,
   Divider,
   List,
   ListItem,
@@ -7,6 +8,7 @@ import {
 } from "@mui/material";
 import Container from "@mui/material/Container";
 import { FC } from "react";
+import AddExpenseButton from "@/components/AddExpenseButton";
 import ExpenseItem from "@/components/ExpenseItem";
 import { fetchDebits } from "@/plugins/api/debits";
 import { fetchGroup } from "@/plugins/api/groups";
@@ -50,9 +52,16 @@ const GroupPage: FC<GroupPageProps> = async ({ params }) => {
   return (
     <Container disableGutters>
       <Container sx={{ pt: 2, pb: 2 }}>
-        <Typography variant="h4" gutterBottom>
-          {group.name}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h4">{group.name}</Typography>
+        </Box>
         <Typography variant="body1" component="p" gutterBottom>
           {group.description}
         </Typography>
@@ -82,10 +91,18 @@ const GroupPage: FC<GroupPageProps> = async ({ params }) => {
             <ListItemText primary={paidAt.toLocaleDateString()} />
           </ListItem>
           {expenses.map((expense) => (
-            <ExpenseItem key={expense.id} expense={expense} me={me} />
+            <ExpenseItem
+              key={expense.id}
+              expense={expense}
+              me={me}
+              groupId={id}
+            />
           ))}
         </List>
       ))}
+
+      {/* Add Expense Button */}
+      <AddExpenseButton groupId={id} currentUser={me} />
     </Container>
   );
 };

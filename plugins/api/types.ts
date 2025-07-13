@@ -36,20 +36,19 @@ export type BaseExpense = {
 };
 
 export type StandardExpense = BaseExpense & {
-  type: 'standard';
+  type: "standard";
   description: string;
   splitType: SplitType;
   splits: ExpenseSplit[];
 };
 
 export type PaymentExpense = BaseExpense & {
-  type: 'payment';
+  type: "payment";
   description?: string; // Optional for payment expenses
   toUser: GroupUser;
 };
 
 export type Expense = StandardExpense | PaymentExpense;
-
 
 export type Balance = {
   user: GroupUser;
