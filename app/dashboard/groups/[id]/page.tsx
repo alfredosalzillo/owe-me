@@ -1,84 +1,19 @@
-import EditIcon from "@mui/icons-material/Edit";
 import {
-  Avatar,
   Divider,
-  IconButton,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemText,
   Typography,
 } from "@mui/material";
 import Container from "@mui/material/Container";
 import { FC } from "react";
+import ExpenseItem from "@/components/ExpenseItem";
 import { fetchDebits } from "@/plugins/api/debits";
 import { fetchGroup } from "@/plugins/api/groups";
-import { Expense, User } from "@/plugins/api/types";
+import { Expense } from "@/plugins/api/types";
 import { fetchMe } from "@/plugins/api/user";
 import groupBy from "@/plugins/array/groupBy";
 import Price from "@/plugins/price-format/Price";
-
-const expenseAction = (me: User, expense: Expense) => {
-  if (expense.paidBy.id === me.id) {
-    const amountLent = expense.splits
-      .filter((split) => split.user.id !== me.id)
-      .map((split) => split.amount)
-      .reduce((a, b) => a + b, 0);
-    const lentTos = expense.splits
-      .filter((split) => split.user.id !== me.id)
-      .map((split) => split.user.name)
-      .join(", ");
-    return (
-      <>
-        You lent <Price amount={amountLent} currency={expense.currency} /> to{" "}
-        {lentTos} (<Price amount={expense.amount} currency={expense.currency} />{" "}
-        total paid)
-      </>
-    );
-  }
-  const borrowed = expense.splits.find((split) => split.user.id === me.id);
-  if (borrowed) {
-    return (
-      <>
-        You borrowed{" "}
-        <Price amount={borrowed.amount} currency={expense.currency} /> from{" "}
-        {expense.paidBy.name} (
-        <Price amount={expense.amount} currency={expense.currency} /> total
-        paid)
-      </>
-    );
-  }
-  return (
-    <>
-      {expense.paidBy.name} paid{" "}
-      <Price amount={expense.amount} currency={expense.currency} />
-    </>
-  );
-};
-
-type ExpenseItemProps = {
-  expense: Expense;
-  me: User;
-};
-const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense }) => {
-  return (
-    <ListItem
-      secondaryAction={
-        <IconButton edge="end" aria-label="edit">
-          <EditIcon />
-        </IconButton>
-      }
-    >
-      <ListItemAvatar>
-        <Avatar alt={expense.createdBy.name}>{expense.description[0]}</Avatar>
-      </ListItemAvatar>
-      <ListItemText
-        primary={expense.description}
-        secondary={expenseAction(me, expense)}
-      />
-    </ListItem>
-  );
-};
 
 type GroupedExpense = {
   paidAt: Date;

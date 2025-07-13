@@ -1,11 +1,19 @@
 import { fetchGroup } from "@/plugins/api/groups";
-import { Expense, Group, GroupDebit, User } from "@/plugins/api/types";
+import { Expense, Group, GroupDebit, StandardExpense, PaymentExpense, User } from "@/plugins/api/types";
 
 const expenseBorrowed = (user: User, expense: Expense) => {
-  return expense.splits
-    .filter((split) => split.user.id === user.id)
-    .map((split) => split.amount)
-    .reduce((a, b) => a + b, 0);
+  // Only StandardExpense has splits
+  if (expense.type === 'standard') {
+    return expense.splits
+      .filter((split) => split.user.id === user.id)
+      .map((split) => split.amount)
+      .reduce((a, b) => a + b, 0);
+  }
+  // For PaymentExpense, if the user is the receiver, they borrowed the full amount
+  if (expense.type === 'payment' && expense.toUser.id === user.id) {
+    return expense.amount;
+  }
+  return 0;
 };
 
 const expensesToGroupDebit = (
@@ -13,9 +21,19 @@ const expensesToGroupDebit = (
   to: User,
   allExpenses: Expense[],
 ): GroupDebit[] => {
+  // Filter expenses that involve these two users
   const expenses = allExpenses.filter(
-    (expense) => expense.paidBy.id === to.id || expense.paidBy.id === from.id,
+    (expense) => {
+      // For payment expenses, check if one user is the payer and the other is the receiver
+      if (expense.type === 'payment') {
+        return (expense.paidBy.id === from.id && expense.toUser.id === to.id) ||
+               (expense.paidBy.id === to.id && expense.toUser.id === from.id);
+      }
+      // For standard expenses, check if either user paid
+      return expense.paidBy.id === to.id || expense.paidBy.id === from.id;
+    }
   );
+
   const expensesByCurrencies = expenses.reduce(
     (acc, expense) => ({
       ...acc,
@@ -23,16 +41,35 @@ const expensesToGroupDebit = (
     }),
     {} as Record<string, Expense[]>,
   );
+
   return Object.entries(expensesByCurrencies)
     .map(([currency, expenses]) => {
-      const lent = expenses
+      let lent = 0;
+      let borrowed = 0;
+
+      // Process standard expenses
+      const standardExpenses = expenses.filter(expense => expense.type === 'standard') as StandardExpense[];
+      lent += standardExpenses
         .filter((expense) => expense.paidBy.id === from.id)
         .map((expense) => expenseBorrowed(to, expense))
         .reduce((a, b) => a + b, 0);
-      const borrowed = expenses
+      borrowed += standardExpenses
         .filter((expense) => expense.paidBy.id !== from.id)
         .map((expense) => expenseBorrowed(from, expense))
         .reduce((a, b) => a + b, 0);
+
+      // Process payment expenses
+      const paymentExpenses = expenses.filter(expense => expense.type === 'payment') as PaymentExpense[];
+      for (const payment of paymentExpenses) {
+        if (payment.paidBy.id === from.id && payment.toUser.id === to.id) {
+          // from paid to, so from lent to to
+          lent += payment.amount;
+        } else if (payment.paidBy.id === to.id && payment.toUser.id === from.id) {
+          // to paid to from, so from borrowed from to
+          borrowed += payment.amount;
+        }
+      }
+
       const net = lent - borrowed;
       if (net > 0) {
         return { from: to, to: from, amount: net, currency };

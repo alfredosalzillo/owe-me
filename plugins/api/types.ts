@@ -24,29 +24,32 @@ export type ExpenseSplit = {
   percentage?: number;
 };
 
-export type Expense = {
+export type BaseExpense = {
   id: string;
-  description: string;
   amount: number;
   currency: string;
   paidBy: GroupUser;
   paidAt: Date;
-  splitType: SplitType;
-  splits: ExpenseSplit[];
   createdAt: Date;
   createdBy: GroupUser;
   updatedAt: Date;
 };
 
-export type Payment = {
-  id: string;
-  fromUser: GroupUser;
-  toUser: GroupUser;
-  amount: number;
-  currency: string;
-  description?: string;
-  createdAt: Date;
+export type StandardExpense = BaseExpense & {
+  type: 'standard';
+  description: string;
+  splitType: SplitType;
+  splits: ExpenseSplit[];
 };
+
+export type PaymentExpense = BaseExpense & {
+  type: 'payment';
+  description?: string; // Optional for payment expenses
+  toUser: GroupUser;
+};
+
+export type Expense = StandardExpense | PaymentExpense;
+
 
 export type Balance = {
   user: GroupUser;
@@ -68,7 +71,6 @@ export type Group = {
   debitMode: GroupDebitMode;
   members: GroupMember[];
   expenses: Expense[];
-  payments: Payment[];
   balances: GroupBalance[];
   createdAt: Date;
   createdBy: GroupUser;

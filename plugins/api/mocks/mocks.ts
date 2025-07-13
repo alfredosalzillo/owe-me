@@ -48,6 +48,7 @@ const group1: Group = {
   expenses: [
     {
       id: "expense-1",
+      type: "standard",
       description: "Hotel Booking",
       amount: 400,
       currency: "USD",
@@ -96,6 +97,7 @@ const group1: Group = {
     },
     {
       id: "expense-2",
+      type: "standard",
       description: "Restaurant Dinner",
       amount: 200,
       currency: "USD",
@@ -144,6 +146,7 @@ const group1: Group = {
     },
     {
       id: "expense-3",
+      type: "standard",
       description: "Ski Equipment Rental",
       amount: 320,
       currency: "USD",
@@ -192,6 +195,7 @@ const group1: Group = {
     },
     {
       id: "expense-4",
+      type: "standard",
       description: "Groceries",
       amount: 160,
       currency: "USD",
@@ -240,6 +244,7 @@ const group1: Group = {
     },
     {
       id: "expense-5",
+      type: "standard",
       description: "Taxi Rides",
       amount: 120,
       currency: "USD",
@@ -288,6 +293,7 @@ const group1: Group = {
     },
     {
       id: "expense-6",
+      type: "standard",
       description: "Mountain Guide",
       amount: 280,
       currency: "USD",
@@ -336,6 +342,7 @@ const group1: Group = {
     },
     {
       id: "expense-7",
+      type: "standard",
       description: "Evening Entertainment",
       amount: 240,
       currency: "USD",
@@ -382,11 +389,13 @@ const group1: Group = {
       },
       updatedAt: new Date("2025-01-04"),
     },
-  ],
-  payments: [
     {
       id: "payment-1",
-      fromUser: {
+      type: "payment",
+      description: "Hotel payment settlement",
+      amount: 200,
+      currency: "USD",
+      paidBy: {
         id: "user-2",
         name: "Jane Smith",
       },
@@ -394,10 +403,35 @@ const group1: Group = {
         id: "user-1",
         name: "John Doe",
       },
-      amount: 200,
-      currency: "USD",
-      description: "Hotel payment settlement",
+      paidAt: new Date("2025-01-04"),
       createdAt: new Date("2025-01-04"),
+      createdBy: {
+        id: "user-2",
+        name: "Jane Smith",
+      },
+      updatedAt: new Date("2025-01-04"),
+    },
+    {
+      id: "payment-2",
+      type: "payment",
+      // No description to demonstrate optional description
+      amount: 150,
+      currency: "USD",
+      paidBy: {
+        id: "user-3",
+        name: "Bob Wilson",
+      },
+      toUser: {
+        id: "user-4",
+        name: "Alice Brown",
+      },
+      paidAt: new Date("2025-01-05"),
+      createdAt: new Date("2025-01-05"),
+      createdBy: {
+        id: "user-3",
+        name: "Bob Wilson",
+      },
+      updatedAt: new Date("2025-01-05"),
     },
   ],
   balances: [
