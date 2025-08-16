@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["app/**", "config.ts", "next.config.ts"]
+    "includes": ["src/**", "config.ts", "next.config.ts"]
   },
   "formatter": {
     "enabled": true,
