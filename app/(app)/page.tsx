@@ -1,39 +1,24 @@
-import {
-  Avatar,
-  Container,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from "@mui/material";
-import Link from "next/link";
-import { fetchGroups } from "@/plugins/api/groups";
+"use client";
 
-const AppHome = async () => {
-  const groups = await fetchGroups();
+import { CircularProgress, Container } from "@mui/material";
+import Box from "@mui/material/Box";
+import dynamic from "next/dynamic";
+
+const GroupList = dynamic(() => import("@/components/GroupList"), {
+  ssr: false,
+  loading: () => (
+    <Box
+      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+    >
+      <CircularProgress />
+    </Box>
+  ),
+});
+
+const AppHome = () => {
   return (
     <Container disableGutters sx={{ pt: 2, pb: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Groups
-      </Typography>
-
-      <List>
-        {groups.map((group) => (
-          <ListItem key={group.id} disablePadding>
-            <ListItemButton component={Link} href={`/groups/${group.id}`}>
-              <ListItemAvatar>
-                <Avatar>{group.name[0]}</Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={group.name}
-                secondary={group.description}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      <GroupList />
     </Container>
   );
 };

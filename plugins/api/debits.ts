@@ -7,6 +7,7 @@ import {
   StandardExpense,
   User,
 } from "@/plugins/api/types";
+import useAsync from "@/plugins/useAsync";
 
 const expenseBorrowed = (user: User, expense: Expense) => {
   // Only StandardExpense has splits
@@ -181,3 +182,8 @@ export const fetchDebits = async (groupId: string): Promise<GroupDebit[]> => {
   }
   return groupDebits(group);
 };
+
+
+export const useDebits = (groupId: string) => {
+  return useAsync(`group-${groupId}-debits`, () => fetchDebits(groupId))
+}

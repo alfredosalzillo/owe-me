@@ -1,21 +1,16 @@
-import {
-  Box,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from "@mui/material";
+'use client';
+
+import { useGroup } from "@/plugins/api/groups";
+import { useDebits } from "@/plugins/api/debits";
+import { useMe } from "@/plugins/api/user";
 import Container from "@mui/material/Container";
-import { FC } from "react";
-import AddExpenseButton from "@/components/AddExpenseButton";
-import ExpenseItem from "@/components/ExpenseItem";
-import { fetchDebits } from "@/plugins/api/debits";
-import { fetchGroup } from "@/plugins/api/groups";
-import { Expense } from "@/plugins/api/types";
-import { fetchMe } from "@/plugins/api/user";
-import groupBy from "@/plugins/array/groupBy";
+import { Box, Divider, List, ListItem, ListItemText, Typography } from "@mui/material";
 import Price from "@/plugins/price-format/Price";
+import ExpenseItem from "@/components/ExpenseItem";
+import AddExpenseButton from "@/components/AddExpenseButton";
+import { FC } from "react";
+import { Expense } from "@/plugins/api/types";
+import groupBy from "@/plugins/array/groupBy";
 
 type GroupedExpense = {
   paidAt: Date;
@@ -37,18 +32,18 @@ const groupExpensesByDate = (expenses: Expense[]): GroupedExpense[] => {
     .toSorted((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
 };
 
-type GroupPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-const GroupPage: FC<GroupPageProps> = async ({ params }) => {
-  const { id } = await params;
-  const group = await fetchGroup(id);
-  const debits = await fetchDebits(id);
-
-  const me = await fetchMe();
+export type GroupProps = {
+  id: string;
+}
+const Group: FC<GroupProps> = ({ id }) => {
+  const [me] = useMe()
+  const [group, revalidateGroup] = useGroup(id);
+  const [debits, revalidateDebits] = useDebits(id);
   const groupedExpenses = groupExpensesByDate(group.expenses);
+  const refreshData = () => {
+    revalidateGroup();
+    revalidateDebits();
+  }
   return (
     <Container disableGutters>
       <Container sx={{ pt: 2, pb: 2 }}>
@@ -96,14 +91,18 @@ const GroupPage: FC<GroupPageProps> = async ({ params }) => {
               expense={expense}
               me={me}
               groupId={id}
+              onUpdate={refreshData}
             />
           ))}
         </List>
       ))}
-
-      {/* Add Expense Button */}
-      <AddExpenseButton groupId={id} currentUser={me} />
+      <AddExpenseButton
+        groupId={id}
+        currentUser={me}
+        onAdd={refreshData}
+      />
     </Container>
   );
-};
-export default GroupPage;
+}
+
+export default Group

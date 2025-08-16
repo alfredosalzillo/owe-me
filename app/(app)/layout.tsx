@@ -1,11 +1,10 @@
-import { ThemeProvider } from "@mui/material";
+import { CircularProgress, ThemeProvider } from "@mui/material";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
-import type { FC } from "react";
-import React from "react";
+import React, { FC, Suspense } from "react";
 import theme from "@/app/theme";
 import AppProviders from "@/components/AppProviders";
 import config from "@/config";
@@ -27,25 +26,27 @@ const AppLayout: FC<AppLayoutProps> = ({ header, children }) => {
           <ThemeProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <AppProviders>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  minHeight: "100vh",
-                }}
-              >
-                {header}
+              <Suspense fallback={<CircularProgress />}>
                 <Box
-                  component="main"
                   sx={{
-                    flexGrow: 1,
-                    p: 0,
-                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: "100vh",
                   }}
                 >
-                  {children}
+                  {header}
+                  <Box
+                    component="main"
+                    sx={{
+                      flexGrow: 1,
+                      p: 0,
+                      width: "100%",
+                    }}
+                  >
+                    {children}
+                  </Box>
                 </Box>
-              </Box>
+              </Suspense>
             </AppProviders>
           </ThemeProvider>
         </AppRouterCacheProvider>

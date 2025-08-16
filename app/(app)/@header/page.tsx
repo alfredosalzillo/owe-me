@@ -20,7 +20,7 @@ const HeaderSlot = () => {
   return (
     <Box>
       <AppBar
-        position="fixed"
+        position="static"
         variant="outlined"
         sx={{
           borderTop: 0,

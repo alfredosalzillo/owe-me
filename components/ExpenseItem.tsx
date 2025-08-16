@@ -10,7 +10,6 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDialogs } from "@toolpad/core/useDialogs";
-import { useRouter } from "next/navigation";
 import { FC } from "react";
 import ExpenseDialog, { ExpenseFormData } from "@/components/ExpenseDialog";
 import { updateExpense, updatePayment } from "@/plugins/api/expenses";
@@ -92,12 +91,12 @@ type ExpenseItemProps = {
   expense: Expense;
   me: User;
   groupId: string;
+  onUpdate?: () => void;
 };
 
-const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense, groupId }) => {
+const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense, groupId, onUpdate }) => {
   const theme = useTheme();
   const dialogs = useDialogs();
-  const router = useRouter();
   // Use different styling for payments
   const isPayment = expense.type === "payment";
 
@@ -197,8 +196,7 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ me, expense, groupId }) => {
         });
       }
 
-      // Refresh the page to show the updated expense
-      router.refresh();
+      onUpdate?.();
     } catch (error) {
       // biome-ignore lint/suspicious/noConsole: allowed
       console.error("Failed to update expense:", error);

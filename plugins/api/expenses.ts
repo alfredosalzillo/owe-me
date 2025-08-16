@@ -1,5 +1,3 @@
-"use server";
-
 import { fetchGroup } from "@/plugins/api/groups";
 import {
   GroupUser,

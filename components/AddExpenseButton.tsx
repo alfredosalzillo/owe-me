@@ -2,7 +2,6 @@
 import AddIcon from "@mui/icons-material/Add";
 import { Fab, Tooltip } from "@mui/material";
 import { useDialogs } from "@toolpad/core/useDialogs";
-import { useRouter } from "next/navigation";
 import { FC } from "react";
 import ExpenseDialog from "@/components/ExpenseDialog";
 import { addExpense, addPayment } from "@/plugins/api/expenses";
@@ -16,13 +15,14 @@ import {
 type AddExpenseButtonProps = {
   groupId: string;
   currentUser: User;
+  onAdd?: () => void;
 };
 
 const AddExpenseButton: FC<AddExpenseButtonProps> = ({
   groupId,
   currentUser,
+  onAdd,
 }) => {
-  const router = useRouter();
   const dialogs = useDialogs();
 
   return (
@@ -98,7 +98,7 @@ const AddExpenseButton: FC<AddExpenseButtonProps> = ({
             }
 
             // Refresh the expenses list
-            router.refresh();
+            onAdd?.()
           } catch (error) {
             // biome-ignore lint/suspicious/noConsole: allowed
             console.error("Failed to add expense:", error);

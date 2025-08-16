@@ -1,18 +1,17 @@
-import SettingsIcon from "@mui/icons-material/Settings";
 import { AppBar, Avatar, Box, IconButton, Toolbar } from "@mui/material";
-import Container from "@mui/material/Container";
-import { FC } from "react";
 import BackIconButton from "@/components/BackIconButton";
-import { fetchGroup } from "@/plugins/api/groups";
+import Container from "@mui/material/Container";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { useGroup } from "@/plugins/api/groups";
+import { FC } from "react";
 
-type HeaderGroupSlotProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-const HeaderGroupSlot: FC<HeaderGroupSlotProps> = async ({ params }) => {
-  const { id } = await params;
-  const group = await fetchGroup(id);
+type GroupHeaderProps = {
+  id: string;
+}
+const GroupHeader: FC<GroupHeaderProps> = ({
+  id,
+}) => {
+  const [group] = useGroup(id);
   return (
     <AppBar position="static">
       <Toolbar
@@ -42,7 +41,7 @@ const HeaderGroupSlot: FC<HeaderGroupSlotProps> = async ({ params }) => {
         </IconButton>
       </Toolbar>
     </AppBar>
-  );
-};
+  )
+}
 
-export default HeaderGroupSlot;
+export default GroupHeader
