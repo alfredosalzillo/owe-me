@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { fetchGroups } from "@/plugins/api/groups";
 
-const DashboardHome = async () => {
+const AppHome = async () => {
   const groups = await fetchGroups();
   return (
     <Container disableGutters sx={{ pt: 2, pb: 2 }}>
@@ -22,10 +22,7 @@ const DashboardHome = async () => {
       <List>
         {groups.map((group) => (
           <ListItem key={group.id} disablePadding>
-            <ListItemButton
-              component={Link}
-              href={`/dashboard/groups/${group.id}`}
-            >
+            <ListItemButton component={Link} href={`/groups/${group.id}`}>
               <ListItemAvatar>
                 <Avatar>{group.name[0]}</Avatar>
               </ListItemAvatar>
@@ -41,4 +38,4 @@ const DashboardHome = async () => {
   );
 };
 
-export default DashboardHome;
+export default AppHome;

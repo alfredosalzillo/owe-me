@@ -11,15 +11,15 @@ import AppProviders from "@/components/AppProviders";
 import config from "@/config";
 
 export const metadata: Metadata = {
-  title: `${config.siteName} - Dashboard`,
+  title: `${config.siteName}`,
   description: config.siteDescription,
 };
 
-type DashboardLayoutProps = {
+type AppLayoutProps = {
   children: React.ReactNode;
   header: React.ReactNode;
 };
-const DashboardLayout: FC<DashboardLayoutProps> = ({ header, children }) => {
+const AppLayout: FC<AppLayoutProps> = ({ header, children }) => {
   return (
     <html lang="en" dir="ltr">
       <body>
@@ -57,4 +57,4 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ header, children }) => {
   );
 };
 
-export default DashboardLayout;
+export default AppLayout;
