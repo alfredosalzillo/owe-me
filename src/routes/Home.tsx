@@ -1,6 +1,7 @@
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
+  Button,
   CircularProgress,
   Container,
   Drawer,
@@ -9,16 +10,36 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
+import { useDialogs } from "@toolpad/core/useDialogs";
 import React, { lazy, Suspense, useState } from "react";
+import { useNavigate } from "react-router";
+import GroupSettingsDialog from "@/components/GroupSettingsDialog";
 import config from "@/config";
+import { createGroup, useGroups } from "@/plugins/api/groups";
 
 const GroupList = lazy(() => import("@/components/GroupList"));
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const dialogs = useDialogs();
+  const navigate = useNavigate();
+  const [, revalidateGroups] = useGroups();
 
   const toggleDrawer = () => {
     setDrawerOpen((prev) => !prev);
+  };
+
+  const openCreate = async () => {
+    const values = await dialogs.open(GroupSettingsDialog, {
+      mode: "create",
+      title: "Create Group",
+    });
+    if (!values) {
+      return;
+    }
+    const group = await createGroup(values);
+    await revalidateGroups();
+    navigate(`/groups/${group.id}`);
   };
   return (
     <Box>
@@ -41,9 +62,12 @@ const Header = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {config.siteName}
           </Typography>
+          <Button color="inherit" onClick={openCreate}>
+            New Group
+          </Button>
         </Toolbar>
       </AppBar>
       <Drawer

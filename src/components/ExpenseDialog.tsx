@@ -168,7 +168,12 @@ const ExpenseDialog = ({
   };
 
   return (
-    <Dialog fullScreen open={open} onClose={() => onClose()}>
+    <Dialog
+      fullScreen
+      open={open}
+      onClose={() => onClose()}
+      slotProps={{ paper: { variant: "outlined" } }}
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         {loading ? (
