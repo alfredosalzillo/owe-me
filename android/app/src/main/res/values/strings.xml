@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">owe-me</string>
+    <string name="title_activity_main">owe-me</string>
+    <string name="package_name">com.oweme.app</string>
+    <string name="custom_url_scheme">com.oweme.app</string>
+</resources>
