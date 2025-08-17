@@ -1,11 +1,18 @@
+import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
   Button,
   CircularProgress,
   Container,
+  Divider,
   Drawer,
   IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -13,11 +20,10 @@ import Box from "@mui/material/Box";
 import { useDialogs } from "@toolpad/core/useDialogs";
 import React, { lazy, Suspense, useState } from "react";
 import { useNavigate } from "react-router";
+import GroupList from "@/components/GroupList";
 import GroupSettingsDialog from "@/components/GroupSettingsDialog";
 import config from "@/config";
 import { createGroup, useGroups } from "@/plugins/api/groups";
-
-const GroupList = lazy(() => import("@/components/GroupList"));
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -81,9 +87,29 @@ const Header = () => {
             boxSizing: "border-box",
           },
         }}
+        slotProps={{
+          paper: {
+            variant: "outlined",
+          },
+        }}
       >
         <Toolbar />
-        {/* Add drawer content here */}
+        <Divider />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                setDrawerOpen(false);
+                navigate("/auth/logout");
+              }}
+            >
+              <ListItemIcon>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </Drawer>
     </Box>
   );
