@@ -19,6 +19,7 @@ type RouteNode = {
   page?: string;
   layout?: string;
   template?: string;
+  notFound?: string;
   children: RouteNode[];
 };
 
@@ -89,6 +90,7 @@ const finalize = (node: MutableNode): RouteNode => {
     page: node.page,
     layout: node.layout,
     template: node.template,
+    notFound: node.notFound,
     children: node.children
       .toSorted((a, b) => a.path.localeCompare(b.path))
       .map(finalize),
@@ -99,6 +101,7 @@ export const parse = (root: string): RouteNode => {
     path.join(root, "**/page.*"),
     path.join(root, "**/layout.*"),
     path.join(root, "**/template.*"),
+    path.join(root, "**/not-found.*"),
   ]);
   // Normalize to posix and make paths relative to root
   const normalizedPaths = paths.map((abs) =>
@@ -124,9 +127,22 @@ export const parse = (root: string): RouteNode => {
     if (file.startsWith("template.")) {
       node.template = file;
     }
+    if (file.startsWith("not-found.")) {
+      node.notFound = file;
+    }
   }
 
   return finalize(rootNode);
+};
+
+const createChildrenString = (children?: string[] | string) => {
+  if (!children) {
+    return "null";
+  }
+  if (Array.isArray(children)) {
+    return `[${children.join(", ")}]`;
+  }
+  return children;
 };
 
 const createElementString = (
@@ -134,12 +150,30 @@ const createElementString = (
   props: Record<string, unknown> = {},
   children?: string[] | string,
 ): string => {
-  return `React.createElement(${component}, ${JSON.stringify(props)}, [${children ? [children].flat().join(", ") : ""}])`;
+  return `React.createElement(${component}, ${JSON.stringify(props)}, ${createChildrenString(children)})`;
+};
+
+const nodeToNotFoundCode = (root: string, node: RouteNode): string | null => {
+  if (!node.notFound) {
+    return null;
+  }
+  const Component = `React.lazy(() => import("${path.join(root, node.path, node.notFound)}"))`;
+  return dedent`
+    {
+      path: "*",
+      element: ${createElementString(Component)},
+    },
+  `;
 };
 const nodeToIndexCode = (root: string, node: RouteNode): string => {
   if (!node.page) {
     return dedent(
-      node.children.map((child) => nodeToLayoutCode(root, child)).join(",\n"),
+      [
+        nodeToNotFoundCode(root, node) ?? [],
+        node.children.map((child) => nodeToLayoutCode(root, child)),
+      ]
+        .flat()
+        .join(",\n"),
     );
   }
   const Component = `React.lazy(() => import("${path.join(root, node.path, node.page)}"))`;
@@ -151,8 +185,11 @@ const nodeToIndexCode = (root: string, node: RouteNode): string => {
       element: ${createElementString(Component)},
     },
   `,
-      ...node.children.map((child) => nodeToLayoutCode(root, child)),
-    ].join(",\n"),
+      nodeToNotFoundCode(root, node) ?? [],
+      node.children.map((child) => nodeToLayoutCode(root, child)),
+    ]
+      .flat()
+      .join(",\n"),
   );
 };
 const nodeToTemplateCode = (root: string, node: RouteNode): string => {
@@ -193,6 +230,7 @@ export const createRouterFileCode = (root: string, tree: RouteNode) => {
     const router = createBrowserRouter([
       ${nodeToLayoutCode(root, tree)}
     ]);
+    
     export default () => React.createElement(RouterProvider, { router });
   `;
 };

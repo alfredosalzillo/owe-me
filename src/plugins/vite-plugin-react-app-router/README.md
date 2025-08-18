@@ -75,6 +75,7 @@ The plugin scans your `root` directory (default: `src`) for these files in any f
 - `page.*` — The page component for that folder. Creates an index route for the folder.
 - `layout.*` — Optional layout for that folder. Wraps child routes with its element.
 - `template.*` — Optional template for that folder. Adds a route boundary with a `shouldRevalidate` that re-runs when `pathname` changes; renders an `Outlet` and nests the folder’s page/children inside.
+- `not-found.*` - Optional 404 page.
 
 Supported segment types (based on folder names):
 - Static segments: `src/about/page.tsx` ➜ `/about`
