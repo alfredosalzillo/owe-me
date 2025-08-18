@@ -20,6 +20,7 @@ type RouteNode = {
   layout?: string;
   template?: string;
   notFound?: string;
+  error?: string;
   children: RouteNode[];
 };
 
@@ -91,6 +92,7 @@ const finalize = (node: MutableNode): RouteNode => {
     layout: node.layout,
     template: node.template,
     notFound: node.notFound,
+    error: node.error,
     children: node.children
       .toSorted((a, b) => a.path.localeCompare(b.path))
       .map(finalize),
@@ -102,6 +104,7 @@ export const parse = (root: string): RouteNode => {
     path.join(root, "**/layout.*"),
     path.join(root, "**/template.*"),
     path.join(root, "**/not-found.*"),
+    path.join(root, "**/error.*"),
   ]);
   // Normalize to posix and make paths relative to root
   const normalizedPaths = paths.map((abs) =>
@@ -129,6 +132,9 @@ export const parse = (root: string): RouteNode => {
     }
     if (file.startsWith("not-found.")) {
       node.notFound = file;
+    }
+    if (file.startsWith("error.")) {
+      node.error = file;
     }
   }
 
@@ -211,9 +217,13 @@ const nodeToLayoutCode = (root: string, node: RouteNode): string => {
   const Component = node.layout
     ? `React.lazy(() => import("${path.join(root, node.path, node.layout)}"))`
     : "React.Fragment";
+  const ErrorComponent = node.error
+    ? `React.lazy(() => import("${path.join(root, node.path, node.error)}"))`
+    : null;
   return dedent`
     {
       path: "${node.segment.path}",
+      ${ErrorComponent ? `errorElement: ${createElementString(ErrorComponent)},` : ""}
       element: ${createElementString(Component, {}, "React.createElement(Outlet)")},
       children: [
         ${nodeToTemplateCode(root, node)}
