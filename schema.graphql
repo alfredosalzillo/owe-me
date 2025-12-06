@@ -1,0 +1,1179 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"""A high precision floating point value represented as a string"""
+scalar BigFloat
+
+"""
+Boolean expression comparing fields on type "BigFloat"
+"""
+input BigFloatFilter {
+  eq: BigFloat
+  gt: BigFloat
+  gte: BigFloat
+  in: [BigFloat!]
+  is: FilterIs
+  lt: BigFloat
+  lte: BigFloat
+  neq: BigFloat
+}
+
+"""
+Boolean expression comparing fields on type "BigFloatList"
+"""
+input BigFloatListFilter {
+  containedBy: [BigFloat!]
+  contains: [BigFloat!]
+  eq: [BigFloat!]
+  is: FilterIs
+  overlaps: [BigFloat!]
+}
+
+"""An arbitrary size integer represented as a string"""
+scalar BigInt
+
+"""
+Boolean expression comparing fields on type "BigInt"
+"""
+input BigIntFilter {
+  eq: BigInt
+  gt: BigInt
+  gte: BigInt
+  in: [BigInt!]
+  is: FilterIs
+  lt: BigInt
+  lte: BigInt
+  neq: BigInt
+}
+
+"""
+Boolean expression comparing fields on type "BigIntList"
+"""
+input BigIntListFilter {
+  containedBy: [BigInt!]
+  contains: [BigInt!]
+  eq: [BigInt!]
+  is: FilterIs
+  overlaps: [BigInt!]
+}
+
+"""
+Boolean expression comparing fields on type "Boolean"
+"""
+input BooleanFilter {
+  eq: Boolean
+  is: FilterIs
+}
+
+"""
+Boolean expression comparing fields on type "BooleanList"
+"""
+input BooleanListFilter {
+  containedBy: [Boolean!]
+  contains: [Boolean!]
+  eq: [Boolean!]
+  is: FilterIs
+  overlaps: [Boolean!]
+}
+
+"""
+An opaque string using for tracking a position in results during pagination
+"""
+scalar Cursor
+
+"""A date without time information"""
+scalar Date
+
+"""
+Boolean expression comparing fields on type "Date"
+"""
+input DateFilter {
+  eq: Date
+  gt: Date
+  gte: Date
+  in: [Date!]
+  is: FilterIs
+  lt: Date
+  lte: Date
+  neq: Date
+}
+
+"""
+Boolean expression comparing fields on type "DateList"
+"""
+input DateListFilter {
+  containedBy: [Date!]
+  contains: [Date!]
+  eq: [Date!]
+  is: FilterIs
+  overlaps: [Date!]
+}
+
+"""A date and time"""
+scalar Datetime
+
+"""
+Boolean expression comparing fields on type "Datetime"
+"""
+input DatetimeFilter {
+  eq: Datetime
+  gt: Datetime
+  gte: Datetime
+  in: [Datetime!]
+  is: FilterIs
+  lt: Datetime
+  lte: Datetime
+  neq: Datetime
+}
+
+"""
+Boolean expression comparing fields on type "DatetimeList"
+"""
+input DatetimeListFilter {
+  containedBy: [Datetime!]
+  contains: [Datetime!]
+  eq: [Datetime!]
+  is: FilterIs
+  overlaps: [Datetime!]
+}
+
+enum DebitMode {
+  default
+  simplified
+}
+
+"""
+Boolean expression comparing fields on type "DebitMode"
+"""
+input DebitModeFilter {
+  eq: DebitMode
+  in: [DebitMode!]
+  is: FilterIs
+  neq: DebitMode
+}
+
+type Expense implements Node {
+  amount: BigFloat!
+  createdAt: Datetime!
+  createdBy: Profile
+  currency: String!
+  description: String
+  group: Group
+  groupId: UUID!
+  id: UUID!
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+  paidAt: Datetime!
+  paidBy: Profile
+  splits(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseSplitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseSplitOrderBy!]
+  ): ExpenseSplitConnection
+  toUser: Profile
+  type: String!
+  updatedAt: Datetime!
+}
+
+type ExpenseConnection {
+  edges: [ExpenseEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ExpenseDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Expense!]!
+}
+
+type ExpenseEdge {
+  cursor: String!
+  node: Expense!
+}
+
+input ExpenseFilter {
+  amount: BigFloatFilter
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [ExpenseFilter!]
+  createdAt: DatetimeFilter
+  createdBy: UUIDFilter
+  currency: StringFilter
+  description: StringFilter
+  groupId: UUIDFilter
+  id: UUIDFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: ExpenseFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [ExpenseFilter!]
+  paidAt: DatetimeFilter
+  paidBy: UUIDFilter
+  toUser: UUIDFilter
+  type: StringFilter
+  updatedAt: DatetimeFilter
+}
+
+input ExpenseInsertInput {
+  amount: BigFloat
+  createdAt: Datetime
+  createdBy: UUID
+  currency: String
+  description: String
+  groupId: UUID
+  id: UUID
+  paidAt: Datetime
+  paidBy: UUID
+  toUser: UUID
+  type: String
+  updatedAt: Datetime
+}
+
+type ExpenseInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Expense!]!
+}
+
+input ExpenseOrderBy {
+  amount: OrderByDirection
+  createdAt: OrderByDirection
+  createdBy: OrderByDirection
+  currency: OrderByDirection
+  description: OrderByDirection
+  groupId: OrderByDirection
+  id: OrderByDirection
+  paidAt: OrderByDirection
+  paidBy: OrderByDirection
+  toUser: OrderByDirection
+  type: OrderByDirection
+  updatedAt: OrderByDirection
+}
+
+type ExpenseSplit implements Node {
+  amount: BigFloat!
+  expense: Expense
+  expenseId: UUID!
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+  percentage: BigFloat
+  user: Profile
+  userId: UUID!
+}
+
+type ExpenseSplitConnection {
+  edges: [ExpenseSplitEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ExpenseSplitDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [ExpenseSplit!]!
+}
+
+type ExpenseSplitEdge {
+  cursor: String!
+  node: ExpenseSplit!
+}
+
+input ExpenseSplitFilter {
+  amount: BigFloatFilter
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [ExpenseSplitFilter!]
+  expenseId: UUIDFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: ExpenseSplitFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [ExpenseSplitFilter!]
+  percentage: BigFloatFilter
+  userId: UUIDFilter
+}
+
+input ExpenseSplitInsertInput {
+  amount: BigFloat
+  expenseId: UUID
+  percentage: BigFloat
+  userId: UUID
+}
+
+type ExpenseSplitInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [ExpenseSplit!]!
+}
+
+input ExpenseSplitOrderBy {
+  amount: OrderByDirection
+  expenseId: OrderByDirection
+  percentage: OrderByDirection
+  userId: OrderByDirection
+}
+
+input ExpenseSplitUpdateInput {
+  amount: BigFloat
+  expenseId: UUID
+  percentage: BigFloat
+  userId: UUID
+}
+
+type ExpenseSplitUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [ExpenseSplit!]!
+}
+
+input ExpenseUpdateInput {
+  amount: BigFloat
+  createdAt: Datetime
+  createdBy: UUID
+  currency: String
+  description: String
+  groupId: UUID
+  id: UUID
+  paidAt: Datetime
+  paidBy: UUID
+  toUser: UUID
+  type: String
+  updatedAt: Datetime
+}
+
+type ExpenseUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Expense!]!
+}
+
+enum FilterIs {
+  NOT_NULL
+  NULL
+}
+
+"""
+Boolean expression comparing fields on type "Float"
+"""
+input FloatFilter {
+  eq: Float
+  gt: Float
+  gte: Float
+  in: [Float!]
+  is: FilterIs
+  lt: Float
+  lte: Float
+  neq: Float
+}
+
+"""
+Boolean expression comparing fields on type "FloatList"
+"""
+input FloatListFilter {
+  containedBy: [Float!]
+  contains: [Float!]
+  eq: [Float!]
+  is: FilterIs
+  overlaps: [Float!]
+}
+
+type Group implements Node {
+  createdAt: Datetime!
+  createdBy: Profile
+  debitMode: DebitMode!
+  defaultCurrency: String!
+  description: String
+  expenses(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseOrderBy!]
+  ): ExpenseConnection
+  id: UUID!
+  members(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupMemberFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupMemberOrderBy!]
+  ): GroupMemberConnection
+  name: String!
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+}
+
+type GroupConnection {
+  edges: [GroupEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GroupDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Group!]!
+}
+
+type GroupEdge {
+  cursor: String!
+  node: Group!
+}
+
+input GroupFilter {
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [GroupFilter!]
+  createdAt: DatetimeFilter
+  createdBy: UUIDFilter
+  debitMode: DebitModeFilter
+  defaultCurrency: StringFilter
+  description: StringFilter
+  id: UUIDFilter
+  name: StringFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: GroupFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [GroupFilter!]
+}
+
+input GroupInsertInput {
+  createdAt: Datetime
+  createdBy: UUID
+  debitMode: DebitMode
+  defaultCurrency: String
+  description: String
+  id: UUID
+  name: String
+}
+
+type GroupInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Group!]!
+}
+
+type GroupMember implements Node {
+  group: Group
+  groupId: UUID!
+  joinedAt: Datetime!
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+  role: String!
+  user: Profile
+  userId: UUID!
+}
+
+type GroupMemberConnection {
+  edges: [GroupMemberEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GroupMemberDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [GroupMember!]!
+}
+
+type GroupMemberEdge {
+  cursor: String!
+  node: GroupMember!
+}
+
+input GroupMemberFilter {
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [GroupMemberFilter!]
+  groupId: UUIDFilter
+  joinedAt: DatetimeFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: GroupMemberFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [GroupMemberFilter!]
+  role: StringFilter
+  userId: UUIDFilter
+}
+
+input GroupMemberInsertInput {
+  groupId: UUID
+  joinedAt: Datetime
+  role: String
+  userId: UUID
+}
+
+type GroupMemberInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [GroupMember!]!
+}
+
+input GroupMemberOrderBy {
+  groupId: OrderByDirection
+  joinedAt: OrderByDirection
+  role: OrderByDirection
+  userId: OrderByDirection
+}
+
+input GroupMemberUpdateInput {
+  groupId: UUID
+  joinedAt: Datetime
+  role: String
+  userId: UUID
+}
+
+type GroupMemberUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [GroupMember!]!
+}
+
+input GroupOrderBy {
+  createdAt: OrderByDirection
+  createdBy: OrderByDirection
+  debitMode: OrderByDirection
+  defaultCurrency: OrderByDirection
+  description: OrderByDirection
+  id: OrderByDirection
+  name: OrderByDirection
+}
+
+input GroupUpdateInput {
+  createdAt: Datetime
+  createdBy: UUID
+  debitMode: DebitMode
+  defaultCurrency: String
+  description: String
+  id: UUID
+  name: String
+}
+
+type GroupUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Group!]!
+}
+
+"""
+Boolean expression comparing fields on type "ID"
+"""
+input IDFilter {
+  eq: ID
+}
+
+"""
+Boolean expression comparing fields on type "Int"
+"""
+input IntFilter {
+  eq: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  is: FilterIs
+  lt: Int
+  lte: Int
+  neq: Int
+}
+
+"""
+Boolean expression comparing fields on type "IntList"
+"""
+input IntListFilter {
+  containedBy: [Int!]
+  contains: [Int!]
+  eq: [Int!]
+  is: FilterIs
+  overlaps: [Int!]
+}
+
+"""A Javascript Object Notation value serialized as a string"""
+scalar JSON
+
+"""The root type for creating and mutating data"""
+type Mutation {
+  """Deletes zero or more records from the `Expense` collection"""
+  deleteFromExpenseCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: ExpenseFilter
+  ): ExpenseDeleteResponse!
+  """Deletes zero or more records from the `ExpenseSplit` collection"""
+  deleteFromExpenseSplitCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: ExpenseSplitFilter
+  ): ExpenseSplitDeleteResponse!
+  """Deletes zero or more records from the `Group` collection"""
+  deleteFromGroupCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: GroupFilter
+  ): GroupDeleteResponse!
+  """Deletes zero or more records from the `GroupMember` collection"""
+  deleteFromGroupMemberCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: GroupMemberFilter
+  ): GroupMemberDeleteResponse!
+  """Deletes zero or more records from the `Profile` collection"""
+  deleteFromProfileCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: ProfileFilter
+  ): ProfileDeleteResponse!
+  """Adds one or more `Expense` records to the collection"""
+  insertIntoExpenseCollection(objects: [ExpenseInsertInput!]!): ExpenseInsertResponse
+  """Adds one or more `ExpenseSplit` records to the collection"""
+  insertIntoExpenseSplitCollection(objects: [ExpenseSplitInsertInput!]!): ExpenseSplitInsertResponse
+  """Adds one or more `Group` records to the collection"""
+  insertIntoGroupCollection(objects: [GroupInsertInput!]!): GroupInsertResponse
+  """Adds one or more `GroupMember` records to the collection"""
+  insertIntoGroupMemberCollection(objects: [GroupMemberInsertInput!]!): GroupMemberInsertResponse
+  """Adds one or more `Profile` records to the collection"""
+  insertIntoProfileCollection(objects: [ProfileInsertInput!]!): ProfileInsertResponse
+  isGroupAdmin(gid: UUID!): Boolean
+  isGroupMember(gid: UUID!): Boolean
+  """Updates zero or more records in the `Expense` collection"""
+  updateExpenseCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: ExpenseFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: ExpenseUpdateInput!
+  ): ExpenseUpdateResponse!
+  """Updates zero or more records in the `ExpenseSplit` collection"""
+  updateExpenseSplitCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: ExpenseSplitFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: ExpenseSplitUpdateInput!
+  ): ExpenseSplitUpdateResponse!
+  """Updates zero or more records in the `Group` collection"""
+  updateGroupCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: GroupFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: GroupUpdateInput!
+  ): GroupUpdateResponse!
+  """Updates zero or more records in the `GroupMember` collection"""
+  updateGroupMemberCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: GroupMemberFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: GroupMemberUpdateInput!
+  ): GroupMemberUpdateResponse!
+  """Updates zero or more records in the `Profile` collection"""
+  updateProfileCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: ProfileFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: ProfileUpdateInput!
+  ): ProfileUpdateResponse!
+}
+
+interface Node {
+  """Retrieves a record by `ID`"""
+  nodeId: ID!
+}
+
+"""Any type not handled by the type system"""
+scalar Opaque
+
+"""
+Boolean expression comparing fields on type "Opaque"
+"""
+input OpaqueFilter {
+  eq: Opaque
+  is: FilterIs
+}
+
+"""Defines a per-field sorting order"""
+enum OrderByDirection {
+  """Ascending order, nulls first"""
+  AscNullsFirst
+  """Ascending order, nulls last"""
+  AscNullsLast
+  """Descending order, nulls first"""
+  DescNullsFirst
+  """Descending order, nulls last"""
+  DescNullsLast
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type Profile implements Node {
+  createdAt: Datetime!
+  expensesCreated(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseOrderBy!]
+  ): ExpenseConnection
+  expensesPaid(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseOrderBy!]
+  ): ExpenseConnection
+  expensesReceived(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseOrderBy!]
+  ): ExpenseConnection
+  groupsCreated(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupOrderBy!]
+  ): GroupConnection
+  groupsParticipating(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupMemberFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupMemberOrderBy!]
+  ): GroupMemberConnection
+  id: UUID!
+  name: String
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+  splitsParticipating(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseSplitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseSplitOrderBy!]
+  ): ExpenseSplitConnection
+}
+
+type ProfileConnection {
+  edges: [ProfileEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProfileDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Profile!]!
+}
+
+type ProfileEdge {
+  cursor: String!
+  node: Profile!
+}
+
+input ProfileFilter {
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [ProfileFilter!]
+  createdAt: DatetimeFilter
+  id: UUIDFilter
+  name: StringFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: ProfileFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [ProfileFilter!]
+}
+
+input ProfileInsertInput {
+  createdAt: Datetime
+  id: UUID
+  name: String
+}
+
+type ProfileInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Profile!]!
+}
+
+input ProfileOrderBy {
+  createdAt: OrderByDirection
+  id: OrderByDirection
+  name: OrderByDirection
+}
+
+input ProfileUpdateInput {
+  createdAt: Datetime
+  id: UUID
+  name: String
+}
+
+type ProfileUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Profile!]!
+}
+
+"""The root type for querying data"""
+type Query {
+  """A pagable collection of type `Expense`"""
+  expenseCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseOrderBy!]
+  ): ExpenseConnection
+  """A pagable collection of type `ExpenseSplit`"""
+  expenseSplitCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ExpenseSplitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ExpenseSplitOrderBy!]
+  ): ExpenseSplitConnection
+  """A pagable collection of type `Group`"""
+  groupCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupOrderBy!]
+  ): GroupConnection
+  """A pagable collection of type `GroupMember`"""
+  groupMemberCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupMemberFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupMemberOrderBy!]
+  ): GroupMemberConnection
+  """Retrieve a record by its `ID`"""
+  node(
+    """The record's `ID`"""
+    nodeId: ID!
+  ): Node
+  """A pagable collection of type `Profile`"""
+  profileCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: ProfileFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [ProfileOrderBy!]
+  ): ProfileConnection
+}
+
+"""
+Boolean expression comparing fields on type "String"
+"""
+input StringFilter {
+  eq: String
+  gt: String
+  gte: String
+  ilike: String
+  in: [String!]
+  iregex: String
+  is: FilterIs
+  like: String
+  lt: String
+  lte: String
+  neq: String
+  regex: String
+  startsWith: String
+}
+
+"""
+Boolean expression comparing fields on type "StringList"
+"""
+input StringListFilter {
+  containedBy: [String!]
+  contains: [String!]
+  eq: [String!]
+  is: FilterIs
+  overlaps: [String!]
+}
+
+"""A time without date information"""
+scalar Time
+
+"""
+Boolean expression comparing fields on type "Time"
+"""
+input TimeFilter {
+  eq: Time
+  gt: Time
+  gte: Time
+  in: [Time!]
+  is: FilterIs
+  lt: Time
+  lte: Time
+  neq: Time
+}
+
+"""
+Boolean expression comparing fields on type "TimeList"
+"""
+input TimeListFilter {
+  containedBy: [Time!]
+  contains: [Time!]
+  eq: [Time!]
+  is: FilterIs
+  overlaps: [Time!]
+}
+
+"""A universally unique identifier"""
+scalar UUID
+
+"""
+Boolean expression comparing fields on type "UUID"
+"""
+input UUIDFilter {
+  eq: UUID
+  in: [UUID!]
+  is: FilterIs
+  neq: UUID
+}
+
+"""
+Boolean expression comparing fields on type "UUIDList"
+"""
+input UUIDListFilter {
+  containedBy: [UUID!]
+  contains: [UUID!]
+  eq: [UUID!]
+  is: FilterIs
+  overlaps: [UUID!]
+}

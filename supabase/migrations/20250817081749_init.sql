@@ -165,3 +165,27 @@ create policy "Expense splits delete for members" on public.expense_splits
                               from public.expenses e
                               where e.id = expense_splits.expense_id
                                 and public.is_group_member(e.group_id)));
+
+
+-- Graphql config
+comment on schema public is e'@graphql({"inflect_names": true})';
+comment on table public.profiles is e'@graphql({"name": "Profile"})';
+comment on table public.groups is e'@graphql({"name": "Group"})';
+comment on table public.group_members is e'@graphql({"name": "GroupMember"})';
+comment on table public.expenses is e'@graphql({"name": "Expense"})';
+comment on table public.expense_splits is e'@graphql({"name": "ExpenseSplit"})';
+
+comment on constraint groups_created_by_fkey
+    on public.groups
+    is E'@graphql({"foreign_name": "createdBy", "local_name": "groupsCreated", "nullable": false })';
+
+comment on constraint expenses_created_by_fkey on public.expenses is E'@graphql({"foreign_name": "createdBy", "local_name": "expensesCreated", "nullable": false })';
+comment on constraint expenses_paid_by_fkey on public.expenses is E'@graphql({"foreign_name": "paidBy", "local_name": "expensesPaid", "nullable": false})';
+comment on constraint expenses_to_user_fkey on public.expenses is E'@graphql({"foreign_name": "toUser", "local_name": "expensesReceived", "nullable": true})';
+comment on constraint expenses_group_id_fkey on public.expenses is E'@graphql({"foreign_name": "group", "local_name": "expenses", "nullable": false})';
+
+comment on constraint expense_splits_expense_id_fkey on public.expense_splits is E'@graphql({"foreign_name": "expense", "local_name": "splits", "nullable": false})';
+comment on constraint expense_splits_user_id_fkey on public.expense_splits is E'@graphql({"foreign_name": "user", "local_name": "splitsParticipating", "nullable": false})';
+
+comment on constraint group_members_group_id_fkey on public.group_members is E'@graphql({"foreign_name": "group", "local_name": "members", "nullable": false})';
+comment on constraint group_members_user_id_fkey on public.group_members is E'@graphql({"foreign_name": "user", "local_name": "groupsParticipating", "nullable": false})';
