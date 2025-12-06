@@ -121,7 +121,7 @@ export const updateExpense = async (
   if (expenseUpdate.splits) {
     await supabase
       .from("expense_splits")
-      .delete()
+      .delete({ count: "exact" })
       .eq("expense_id", expenseId)
       .throwOnError();
     if (expenseUpdate.splits.length > 0) {

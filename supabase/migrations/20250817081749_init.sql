@@ -80,13 +80,12 @@ create or replace function public.is_group_member(gid uuid)
     language sql
     security definer
     set search_path = public, pg_temp
-as $$
-select exists(
-    select 1
-    from public.group_members gm
-    where gm.group_id = gid
-      and gm.user_id = auth.uid()
-);
+as
+$$
+select exists(select 1
+              from public.group_members gm
+              where gm.group_id = gid
+                and gm.user_id = auth.uid());
 $$;
 
 create or replace function public.is_group_admin(gid uuid)
@@ -94,14 +93,13 @@ create or replace function public.is_group_admin(gid uuid)
     language sql
     security definer
     set search_path = public, pg_temp
-as $$
-select exists(
-    select 1
-    from public.group_members gm
-    where gm.group_id = gid
-      and gm.user_id = auth.uid()
-      and gm.role = 'ADMIN'
-);
+as
+$$
+select exists(select 1
+              from public.group_members gm
+              where gm.group_id = gid
+                and gm.user_id = auth.uid()
+                and gm.role = 'ADMIN');
 $$;
 
 -- Policies
@@ -135,19 +133,35 @@ create policy "Expenses insert for members" on public.expenses
     for insert with check (public.is_group_member(expenses.group_id));
 create policy "Expenses update by creator or admin" on public.expenses
     for update using (
-      created_by = auth.uid() or public.is_group_admin(expenses.group_id)
+    created_by = auth.uid() or public.is_group_admin(expenses.group_id)
     );
 
 -- Expense splits: follow expenses policy
 create policy "Expense splits select for members" on public.expense_splits
-    for select using (exists (
-        select 1 from public.expenses e
-        where e.id = expense_splits.expense_id
-          and public.is_group_member(e.group_id)
-    ));
+    for select using (exists (select 1
+                              from public.expenses e
+                              where e.id = expense_splits.expense_id
+                                and public.is_group_member(e.group_id)));
 create policy "Expense splits insert for members" on public.expense_splits
-    for insert with check (exists (
-        select 1 from public.expenses e
-        where e.id = expense_splits.expense_id
-          and public.is_group_member(e.group_id)
-    ));
+    for insert with check (exists (select 1
+                                   from public.expenses e
+                                   where e.id = expense_splits.expense_id
+                                     and public.is_group_member(e.group_id)));
+
+-- Allow members to update and delete expense_splits (mirrors expenses policy membership)
+create policy "Expense splits update for members" on public.expense_splits
+    for update
+    using (exists (select 1
+                   from public.expenses e
+                   where e.id = expense_splits.expense_id
+                     and public.is_group_member(e.group_id)))
+    with check (exists (select 1
+                        from public.expenses e
+                        where e.id = expense_splits.expense_id
+                          and public.is_group_member(e.group_id)));
+
+create policy "Expense splits delete for members" on public.expense_splits
+    for delete using (exists (select 1
+                              from public.expenses e
+                              where e.id = expense_splits.expense_id
+                                and public.is_group_member(e.group_id)));

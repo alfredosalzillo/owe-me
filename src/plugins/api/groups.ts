@@ -58,6 +58,7 @@ const loadGroupExpenses = async (groupId: string): Promise<Expense[]> => {
     )
     .eq("group_id", groupId)
     .order("paid_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .throwOnError();
 
   return await Promise.all(
