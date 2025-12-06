@@ -19,7 +19,7 @@ create table if not exists public.groups
     id               uuid primary key           default uuid_generate_v4(),
     name             text              not null,
     description      text,
-    default_currency text              not null default 'USD',
+    default_currency text              not null default 'EUR',
     debit_mode       public.debit_mode not null default 'default',
     created_at       timestamptz       not null default now(),
     created_by       uuid              not null references public.profiles (id)
