@@ -7,11 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.4";
-  };
   public: {
     Tables: {
       expense_splits: {
@@ -221,7 +216,8 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      is_group_admin: { Args: { gid: string }; Returns: boolean };
+      is_group_member: { Args: { gid: string }; Returns: boolean };
     };
     Enums: {
       debit_mode: "default" | "simplified";
