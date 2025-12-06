@@ -77,6 +77,7 @@ alter table public.expense_splits
 -- Helper functions to avoid RLS recursion
 create or replace function public.is_group_member(gid uuid)
     returns boolean
+    stable
     language sql
     security definer
     set search_path = public, pg_temp
@@ -90,6 +91,7 @@ $$;
 
 create or replace function public.is_group_admin(gid uuid)
     returns boolean
+    stable
     language sql
     security definer
     set search_path = public, pg_temp
@@ -189,3 +191,12 @@ comment on constraint expense_splits_user_id_fkey on public.expense_splits is E'
 
 comment on constraint group_members_group_id_fkey on public.group_members is E'@graphql({"foreign_name": "group", "local_name": "members", "nullable": false})';
 comment on constraint group_members_user_id_fkey on public.group_members is E'@graphql({"foreign_name": "user", "local_name": "groupsParticipating", "nullable": false})';
+
+create or replace function public.group(gid uuid)
+    returns public.groups
+    language sql
+    stable
+as
+$$
+select * from public.groups where id = gid;
+$$;

@@ -706,8 +706,6 @@ type Mutation {
   insertIntoGroupMemberCollection(objects: [GroupMemberInsertInput!]!): GroupMemberInsertResponse
   """Adds one or more `Profile` records to the collection"""
   insertIntoProfileCollection(objects: [ProfileInsertInput!]!): ProfileInsertResponse
-  isGroupAdmin(gid: UUID!): Boolean
-  isGroupMember(gid: UUID!): Boolean
   """Updates zero or more records in the `Expense` collection"""
   updateExpenseCollection(
     """
@@ -1032,6 +1030,7 @@ type Query {
     """Sort order to apply to the collection"""
     orderBy: [ExpenseSplitOrderBy!]
   ): ExpenseSplitConnection
+  group(gid: UUID!): Group
   """A pagable collection of type `Group`"""
   groupCollection(
     """Query values in the collection after the provided cursor"""
@@ -1070,6 +1069,8 @@ type Query {
     """Sort order to apply to the collection"""
     orderBy: [GroupMemberOrderBy!]
   ): GroupMemberConnection
+  isGroupAdmin(gid: UUID!): Boolean
+  isGroupMember(gid: UUID!): Boolean
   """Retrieve a record by its `ID`"""
   node(
     """The record's `ID`"""

@@ -641,8 +641,6 @@ export type Mutation = {
   insertIntoGroupMemberCollection: Maybe<GroupMemberInsertResponse>;
   /** Adds one or more `Profile` records to the collection */
   insertIntoProfileCollection: Maybe<ProfileInsertResponse>;
-  isGroupAdmin: Maybe<Scalars['Boolean']['output']>;
-  isGroupMember: Maybe<Scalars['Boolean']['output']>;
   /** Updates zero or more records in the `Expense` collection */
   updateExpenseCollection: ExpenseUpdateResponse;
   /** Updates zero or more records in the `ExpenseSplit` collection */
@@ -718,18 +716,6 @@ export type MutationInsertIntoGroupMemberCollectionArgs = {
 /** The root type for creating and mutating data */
 export type MutationInsertIntoProfileCollectionArgs = {
   objects: Array<ProfileInsertInput>;
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationIsGroupAdminArgs = {
-  gid: Scalars['UUID']['input'];
-};
-
-
-/** The root type for creating and mutating data */
-export type MutationIsGroupMemberArgs = {
-  gid: Scalars['UUID']['input'];
 };
 
 
@@ -958,10 +944,13 @@ export type Query = {
   expenseCollection: Maybe<ExpenseConnection>;
   /** A pagable collection of type `ExpenseSplit` */
   expenseSplitCollection: Maybe<ExpenseSplitConnection>;
+  group: Maybe<Group>;
   /** A pagable collection of type `Group` */
   groupCollection: Maybe<GroupConnection>;
   /** A pagable collection of type `GroupMember` */
   groupMemberCollection: Maybe<GroupMemberConnection>;
+  isGroupAdmin: Maybe<Scalars['Boolean']['output']>;
+  isGroupMember: Maybe<Scalars['Boolean']['output']>;
   /** Retrieve a record by its `ID` */
   node: Maybe<Node>;
   /** A pagable collection of type `Profile` */
@@ -994,6 +983,12 @@ export type QueryExpenseSplitCollectionArgs = {
 
 
 /** The root type for querying data */
+export type QueryGroupArgs = {
+  gid: Scalars['UUID']['input'];
+};
+
+
+/** The root type for querying data */
 export type QueryGroupCollectionArgs = {
   after: InputMaybe<Scalars['Cursor']['input']>;
   before: InputMaybe<Scalars['Cursor']['input']>;
@@ -1014,6 +1009,18 @@ export type QueryGroupMemberCollectionArgs = {
   last: InputMaybe<Scalars['Int']['input']>;
   offset: InputMaybe<Scalars['Int']['input']>;
   orderBy: InputMaybe<Array<GroupMemberOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryIsGroupAdminArgs = {
+  gid: Scalars['UUID']['input'];
+};
+
+
+/** The root type for querying data */
+export type QueryIsGroupMemberArgs = {
+  gid: Scalars['UUID']['input'];
 };
 
 
@@ -1098,10 +1105,12 @@ export type UuidListFilter = {
   overlaps: InputMaybe<Array<Scalars['UUID']['input']>>;
 };
 
-export type GroupQueryVariables = Exact<{ [key: string]: never; }>;
+export type GroupQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
 
 
-export type GroupQuery = { __typename: 'Query', groupCollection: { __typename: 'GroupConnection', edges: Array<{ __typename: 'GroupEdge', node: { __typename: 'Group', id: string, description: string | null, defaultCurrency: string, createdBy: { __typename: 'Profile', id: string } | null } }> } | null };
+export type GroupQuery = { __typename: 'Query', group: { __typename: 'Group', id: string, description: string | null, defaultCurrency: string, createdBy: { __typename: 'Profile', id: string } | null } | null };
 
 
-export const GroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"groupCollection"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"defaultCurrency"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GroupQuery, GroupQueryVariables>;
+export const GroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Group"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"gid"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"defaultCurrency"}}]}}]}}]} as unknown as DocumentNode<GroupQuery, GroupQueryVariables>;
