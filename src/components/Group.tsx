@@ -53,6 +53,7 @@ const GroupFragment = graphql(`
             }
         }
         ...GroupMembersFragment
+        ...GroupCurrencySettingsFragment
     }
 `);
 

@@ -22,6 +22,7 @@ import { DialogProps } from "@toolpad/core";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { SplitType } from "@/plugins/api/types";
+import useGroupCurrencySettings from "@/plugins/api/useGroupCurrencySettings";
 import useGroupMembers from "@/plugins/api/useGroupMembers";
 
 export type ExpenseType = "standard" | "payment";
@@ -55,6 +56,8 @@ const ExpenseDialog = ({
   onClose,
   payload: { groupId, initialData, title },
 }: ExpenseDialogProps) => {
+  const currencySettings = useGroupCurrencySettings(groupId);
+  const defaultCurrency = currencySettings?.defaultCurrency || "EUR";
   const members = useGroupMembers(groupId);
 
   // Initialize form with react-hook-form
@@ -63,7 +66,7 @@ const ExpenseDialog = ({
       type: initialData?.type || "standard",
       description: initialData?.description || "",
       amount: initialData?.amount || 0,
-      currency: initialData?.currency || "USD",
+      currency: initialData?.currency || defaultCurrency,
       paidBy:
         initialData?.paidBy ||
         members.find((member) => member.isMe)?.id ||
