@@ -24,8 +24,9 @@ import { Controller, useForm } from "react-hook-form";
 import { getGroupMembers } from "@/plugins/api/expenses";
 import { GroupUser, SplitType } from "@/plugins/api/types";
 
+export type ExpenseType = "standard" | "payment";
 export type ExpenseFormData = {
-  type: "standard" | "payment";
+  type: ExpenseType;
   description: string;
   amount: number;
   currency: string;

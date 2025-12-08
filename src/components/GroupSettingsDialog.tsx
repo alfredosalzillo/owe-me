@@ -17,7 +17,7 @@ import type { Group } from "@/plugins/api/types";
 
 export type GroupSettingsValues = {
   name: string;
-  description?: string;
+  description: string | null;
   defaultCurrency: string;
   debitMode: Group["debitMode"];
 };
@@ -74,7 +74,7 @@ const GroupSettingsDialog = ({
     try {
       await onClose({
         name: values.name.trim(),
-        description: values.description?.trim() || undefined,
+        description: values.description?.trim() || null,
         defaultCurrency: values.defaultCurrency,
         debitMode: values.debitMode,
       });

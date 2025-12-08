@@ -1,4 +1,3 @@
-import { fetchGroup } from "@/plugins/api/groups";
 import {
   GroupUser,
   PaymentExpense,
@@ -20,7 +19,7 @@ export const addExpense = async (
     StandardExpense,
     "id" | "createdAt" | "createdBy" | "updatedAt"
   >,
-): Promise<StandardExpense> => {
+): Promise<{ id: string }> => {
   const me = await fetchMe();
   const nowIso = new Date().toISOString();
   const { data } = await supabase
@@ -52,20 +51,13 @@ export const addExpense = async (
     }));
     await supabase.from("expense_splits").insert(splitRows).throwOnError();
   }
-
-  // Return full expense via fetchGroup reconstruction
-  const group = await fetchGroup(groupId);
-  const created = group.expenses.find((e) => e.id === expenseId);
-  if (!created || created.type !== "standard") {
-    throw new Error("Failed to create expense");
-  }
-  return created;
+  return data;
 };
 
 export const addPayment = async (
   groupId: string,
   payment: Omit<PaymentExpense, "id" | "createdAt" | "createdBy" | "updatedAt">,
-): Promise<PaymentExpense> => {
+): Promise<{ id: string }> => {
   const me = await fetchMe();
   const nowIso = new Date().toISOString();
   const { data } = await supabase
@@ -86,13 +78,7 @@ export const addPayment = async (
     .select("id")
     .single()
     .throwOnError();
-  const expenseId = data.id as string;
-  const group = await fetchGroup(groupId);
-  const created = group.expenses.find((e) => e.id === expenseId);
-  if (!created || created.type !== "payment") {
-    throw new Error("Failed to create payment");
-  }
-  return created;
+  return data;
 };
 
 export const updateExpense = async (
@@ -101,7 +87,7 @@ export const updateExpense = async (
   expenseUpdate: Partial<
     Omit<StandardExpense, "id" | "createdAt" | "createdBy" | "updatedAt">
   >,
-): Promise<StandardExpense> => {
+): Promise<void> => {
   // Update base row
   if (Object.keys(expenseUpdate).length > 0) {
     await supabase
@@ -134,12 +120,6 @@ export const updateExpense = async (
       await supabase.from("expense_splits").insert(rows).throwOnError();
     }
   }
-  const group = await fetchGroup(groupId);
-  const updated = group.expenses.find((e) => e.id === expenseId);
-  if (!updated || updated.type !== "standard") {
-    throw new Error("Expense not found or not a standard expense");
-  }
-  return updated;
 };
 
 export const updatePayment = async (
@@ -148,7 +128,7 @@ export const updatePayment = async (
   paymentUpdate: Partial<
     Omit<PaymentExpense, "id" | "createdAt" | "createdBy" | "updatedAt">
   >,
-): Promise<PaymentExpense> => {
+): Promise<void> => {
   if (Object.keys(paymentUpdate).length > 0) {
     await supabase
       .from("expenses")
@@ -163,12 +143,6 @@ export const updatePayment = async (
       .eq("id", paymentId)
       .throwOnError();
   }
-  const group = await fetchGroup(groupId);
-  const updated = group.expenses.find((e) => e.id === paymentId);
-  if (!updated || updated.type !== "payment") {
-    throw new Error("Payment not found or not a payment expense");
-  }
-  return updated;
 };
 
 export const getGroupMembers = async (

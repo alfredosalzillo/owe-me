@@ -1,3 +1,4 @@
+import { useSuspenseFragment } from "@apollo/client/react";
 import EditIcon from "@mui/icons-material/Edit";
 import PaymentIcon from "@mui/icons-material/Payment";
 import {
@@ -9,10 +10,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDialogs } from "@toolpad/core/useDialogs";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import ExpenseDialog, { ExpenseFormData } from "@/components/ExpenseDialog";
+import { graphql } from "@/gql";
 import { updateExpense, updatePayment } from "@/plugins/api/expenses";
-import { Expense, User } from "@/plugins/api/types";
+import { Expense, SplitType, User } from "@/plugins/api/types";
+import { useMe } from "@/plugins/api/user";
 import Price from "@/plugins/price-format/Price";
 
 const expenseAction = (me: User, expense: Expense) => {
@@ -86,21 +89,119 @@ const expenseAction = (me: User, expense: Expense) => {
   );
 };
 
+const ExpenseItemFragment = graphql(`
+    fragment ExpenseItemFragment on Expense {
+        id
+        type
+        splitType
+        description
+        amount
+        currency
+        group {
+            id
+        }
+        toUser {
+            id
+            name
+        }
+        paidBy {
+            id
+            name
+        }
+        createdBy {
+            id
+            name
+        }
+        paidAt
+        createdAt,
+        updatedAt,
+        splits {
+            edges {
+                node {
+                    user {
+                        id
+                        name
+                    }
+                    amount
+                    percentage
+                }
+            }
+        }
+    }
+`);
+
 type ExpenseItemProps = {
-  expense: Expense;
-  me: User;
-  groupId: string;
+  id: string;
   onUpdate?: () => void;
 };
 
-const ExpenseItem: FC<ExpenseItemProps> = ({
-  me,
-  expense,
-  groupId,
-  onUpdate,
-}) => {
+const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
+  const [me] = useMe();
   const theme = useTheme();
   const dialogs = useDialogs();
+  const { data } = useSuspenseFragment({
+    fragment: ExpenseItemFragment,
+    from: {
+      __typename: "Expense",
+      id,
+    },
+  });
+
+  const groupId = data.group!.id;
+  const expense = useMemo((): Expense => {
+    if (data.type === "payment") {
+      return {
+        type: "payment",
+        id: data.id,
+        description: data.description ?? "",
+        amount: Number(data.amount),
+        currency: data.currency,
+        paidBy: {
+          id: data.paidBy!.id,
+          name: data.paidBy!.name ?? "User",
+        },
+        createdBy: {
+          id: data.createdBy!.id,
+          name: data.createdBy!.name ?? "User",
+        },
+        toUser: {
+          id: data.toUser!.id,
+          name: data.toUser!.name ?? "User",
+        },
+        paidAt: new Date(data.paidAt),
+        createdAt: new Date(data.createdAt),
+        updatedAt: new Date(data.updatedAt),
+      };
+    }
+    return {
+      type: "standard",
+      id: data.id,
+      description: data.description ?? "",
+      amount: Number(data.amount),
+      currency: data.currency,
+      paidBy: {
+        id: data.paidBy!.id,
+        name: data.paidBy!.name ?? "User",
+      },
+      createdBy: {
+        id: data.createdBy!.id,
+        name: data.createdBy!.name ?? "User",
+      },
+      splitType: data.splitType as SplitType,
+      splits:
+        data.splits?.edges.map((edge) => ({
+          user: {
+            id: edge.node.user!.id,
+            name: edge.node.user!.name ?? "User",
+          },
+          amount: Number(edge.node.amount),
+          percentage: Number(edge.node.percentage),
+        })) ?? [],
+      paidAt: new Date(data.paidAt),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
+    };
+  }, [data]);
   // Use different styling for payments
   const isPayment = expense.type === "payment";
 
@@ -110,7 +211,7 @@ const ExpenseItem: FC<ExpenseItemProps> = ({
       return <PaymentIcon />;
     }
     if (expense.type === "standard") {
-      return expense.description[0] || "?";
+      return expense.description?.[0] || "?";
     }
     return "?";
   };

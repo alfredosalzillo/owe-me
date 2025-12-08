@@ -1,3 +1,4 @@
+import { useSuspenseFragment } from "@apollo/client/react";
 import {
   Box,
   Divider,
@@ -10,44 +11,79 @@ import Container from "@mui/material/Container";
 import { FC } from "react";
 import AddExpenseButton from "@/components/AddExpenseButton";
 import ExpenseItem from "@/components/ExpenseItem";
-import { useDebits } from "@/plugins/api/debits";
-import { useGroup } from "@/plugins/api/groups";
-import { Expense } from "@/plugins/api/types";
+import { graphql } from "@/gql";
 import { useMe } from "@/plugins/api/user";
 import groupBy from "@/plugins/array/groupBy";
 import Price from "@/plugins/price-format/Price";
 
-type GroupedExpense = {
-  paidAt: Date;
-  expenses: Expense[];
+const GroupFragment = graphql(`
+    fragment GroupFragment on Group {
+        id
+        name
+        description
+        defaultCurrency
+        debitMode
+        debits {
+            edges {
+                node {
+                    nodeId
+                    amount
+                    currency
+                    fromUser {
+                        id
+                        name
+                    }
+                    toUser {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        expenses {
+            edges {
+                node {
+                    id
+                    paidAt
+                    ...ExpenseItemFragment
+                }
+            }
+        }
+    }
+`);
+
+export type GroupProps = {
+  id: string;
+  onUpdate?: () => void;
 };
-
-const groupExpensesByDate = (expenses: Expense[]): GroupedExpense[] => {
-  const grouped = groupBy(expenses, (expense) => {
-    const date = new Date(expense.paidAt);
-    date.setHours(0, 0, 0, 0);
-    return date.toISOString();
+const Group: FC<GroupProps> = ({ id, onUpdate }) => {
+  const [me] = useMe();
+  const { data } = useSuspenseFragment({
+    fragment: GroupFragment,
+    fragmentName: "GroupFragment",
+    from: {
+      __typename: "Group",
+      id,
+    },
   });
+  const debits = data.debits?.edges.map((edge) => edge.node) ?? [];
+  const expenses = data.expenses?.edges.map((edge) => edge.node) ?? [];
 
-  return Object.entries(grouped)
+  const groupedExpenses = Object.entries(
+    groupBy(expenses, (expense) => {
+      const date = new Date(expense.paidAt);
+      date.setHours(0, 0, 0, 0);
+      return date.toISOString();
+    }),
+  )
     .map(([dateTime, groupExpenses]) => ({
       paidAt: new Date(dateTime),
       expenses: groupExpenses,
     }))
     .toSorted((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
-};
 
-export type GroupProps = {
-  id: string;
-};
-const Group: FC<GroupProps> = ({ id }) => {
-  const [me] = useMe();
-  const [group, revalidateGroup] = useGroup(id);
-  const [debits, revalidateDebits] = useDebits(id);
-  const groupedExpenses = groupExpensesByDate(group.expenses);
   const refreshData = () => {
-    revalidateGroup();
-    revalidateDebits();
+    onUpdate?.();
   };
   return (
     <Container disableGutters>
@@ -60,29 +96,52 @@ const Group: FC<GroupProps> = ({ id }) => {
             mb: 2,
           }}
         >
-          <Typography variant="h4">{group.name}</Typography>
+          <Typography variant="h4">{data.name}</Typography>
         </Box>
         <Typography variant="body1" component="p" gutterBottom>
-          {group.description}
+          {data.description}
         </Typography>
-        {debits.map((debit) => (
-          <Typography key={`${debit.currency}-${debit.from.id}-${debit.to.id}`}>
-            {debit.to.id === me.id && (
-              <>
-                You are owned{" "}
-                <Price amount={debit.amount} currency={debit.currency} /> from{" "}
-                {debit.from.name}
-              </>
-            )}
-            {debit.from.id === me.id && (
-              <>
-                You own{" "}
-                <Price amount={debit.amount} currency={debit.currency} /> {}
-                to {debit.to.name}
-              </>
-            )}
-          </Typography>
-        ))}
+        {debits.map((debit) => {
+          if (
+            !debit.toUser ||
+            !debit.fromUser ||
+            !debit.amount ||
+            !debit.currency
+          ) {
+            return null;
+          }
+          if (
+            !(debit.toUser.id === me.id || debit.fromUser.id === me.id) ||
+            debit.toUser.id === debit.fromUser.id
+          ) {
+            return null;
+          }
+          return (
+            <Typography key={debit.nodeId}>
+              {debit.toUser.id === me.id && (
+                <>
+                  You are owned{" "}
+                  <Price
+                    amount={Number(debit.amount)}
+                    currency={debit.currency}
+                  />{" "}
+                  from {debit.fromUser.name}
+                </>
+              )}
+              {debit.fromUser.id === me.id && (
+                <>
+                  You own{" "}
+                  <Price
+                    amount={Number(debit.amount)}
+                    currency={debit.currency}
+                  />{" "}
+                  {}
+                  to {debit.toUser.name}
+                </>
+              )}
+            </Typography>
+          );
+        })}
       </Container>
       <Divider />
       {groupedExpenses.map(({ paidAt, expenses }) => (
@@ -93,9 +152,7 @@ const Group: FC<GroupProps> = ({ id }) => {
           {expenses.map((expense) => (
             <ExpenseItem
               key={expense.id}
-              expense={expense}
-              me={me}
-              groupId={id}
+              id={expense.id}
               onUpdate={refreshData}
             />
           ))}

@@ -1,15 +1,30 @@
+import { useSuspenseQuery } from "@apollo/client/react";
 import Box from "@mui/material/Box";
 import React from "react";
 import { useParams } from "react-router";
 import Group from "@/components/Group";
 import GroupHeader from "@/components/GroupHeader";
+import { graphql } from "@/gql";
 
+const GroupPageDocument = graphql(`
+    query GroupPage($id: UUID!) {
+        group(gid: $id) {
+            id
+            ...GroupHeaderFragment
+            ...GroupFragment
+        }
+    }
+`);
 const GroupPage = () => {
   const params = useParams<"id">();
   const { id } = params;
   if (!id) {
     throw new Error("Group ID is required");
   }
+  const { refetch } = useSuspenseQuery(GroupPageDocument, {
+    variables: { id },
+  });
+
   return (
     <Box
       sx={{
@@ -18,7 +33,7 @@ const GroupPage = () => {
         minHeight: "100vh",
       }}
     >
-      <GroupHeader id={id} />
+      <GroupHeader id={id} onEdit={() => refetch()} />
       <Box
         component="main"
         sx={{

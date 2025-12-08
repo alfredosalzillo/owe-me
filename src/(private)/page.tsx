@@ -21,13 +21,11 @@ import React, { Suspense, useState } from "react";
 import { useNavigate } from "react-router";
 import GroupList from "@/components/GroupList";
 import config from "@/config";
-import { useGroups } from "@/plugins/api/groups";
 import useCreateGroup from "@/plugins/api/useCreateGroup";
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  const [, revalidateGroups] = useGroups();
 
   const toggleDrawer = () => {
     setDrawerOpen((prev) => !prev);
@@ -40,7 +38,6 @@ const Header = () => {
     if (!group) {
       return;
     }
-    await revalidateGroups();
     navigate(`/groups/${group.id}`);
   };
 
