@@ -1,4 +1,5 @@
 import { useSuspenseFragment } from "@apollo/client/react";
+import { useMemo } from "react";
 import { graphql } from "@/gql";
 
 const GroupMembersFragment = graphql(`
@@ -25,11 +26,13 @@ const useGroupMembers = (groupId: string) => {
       id: groupId,
     },
   });
-  return (
-    data.members?.edges
-      .map((edge) => edge.node)
-      .map((member) => member.user)
-      .filter((item) => !!item) ?? []
+  return useMemo(
+    () =>
+      data.members?.edges
+        .map((edge) => edge.node)
+        .map((member) => member.user)
+        .filter((item) => !!item) ?? [],
+    [data],
   );
 };
 

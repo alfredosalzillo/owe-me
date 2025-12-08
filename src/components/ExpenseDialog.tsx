@@ -57,7 +57,6 @@ const ExpenseDialog = ({
   payload: { groupId, initialData, title, currentUserId },
 }: ExpenseDialogProps) => {
   const members = useGroupMembers(groupId);
-  const [loading] = useState(true);
 
   // Initialize form with react-hook-form
   const { control, watch, setValue } = useForm<ExpenseFormData>({
@@ -443,7 +442,6 @@ const ExpenseDialog = ({
           onClick={() => onClose(formData)}
           variant="contained"
           color="primary"
-          disabled={loading}
         >
           Save
         </Button>
