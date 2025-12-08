@@ -21,8 +21,7 @@ import {
 import { DialogProps } from "@toolpad/core";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { getGroupMembers } from "@/plugins/api/expenses";
-import { GroupUser, SplitType } from "@/plugins/api/types";
+import { SplitType } from "@/plugins/api/types";
 import useGroupMembers from "@/plugins/api/useGroupMembers";
 
 export type ExpenseType = "standard" | "payment";
