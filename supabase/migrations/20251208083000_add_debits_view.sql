@@ -1,8 +1,6 @@
 -- Migration: add debits function and view implementing fetchDebits logic
 -- Date: 2025-12-08 08:30
 
-set search_path = public;
-
 -- Function: _group_debits(gid)
 -- Computes debits for a group. If group.debit_mode = 'simplified',
 -- it aggregates balances and matches debtors to creditors (greedy),
@@ -360,7 +358,7 @@ end;
 $$;
 
 -- View: debits for all groups via lateral call, enforcing RLS via groups
-create or replace view public.debits as
+create or replace view public.debits with (security_invoker = on) as
 select g.id as group_id,
        d.from_user,
        d.to_user,
