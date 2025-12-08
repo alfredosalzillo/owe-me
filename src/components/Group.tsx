@@ -49,6 +49,7 @@ const GroupFragment = graphql(`
                 }
             }
         }
+        ...GroupMembersFragment
     }
 `);
 

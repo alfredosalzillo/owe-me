@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { getGroupMembers } from "@/plugins/api/expenses";
 import { GroupUser, SplitType } from "@/plugins/api/types";
+import useGroupMembers from "@/plugins/api/useGroupMembers";
 
 export type ExpenseType = "standard" | "payment";
 export type ExpenseFormData = {
@@ -56,8 +57,8 @@ const ExpenseDialog = ({
   onClose,
   payload: { groupId, initialData, title, currentUserId },
 }: ExpenseDialogProps) => {
-  const [members, setMembers] = useState<GroupUser[]>([]);
-  const [loading, setLoading] = useState(true);
+  const members = useGroupMembers(groupId);
+  const [loading] = useState(true);
 
   // Initialize form with react-hook-form
   const { control, watch, setValue } = useForm<ExpenseFormData>({
@@ -76,23 +77,6 @@ const ExpenseDialog = ({
 
   // Watch form values for reactive updates
   const formData = watch();
-
-  // Fetch group members
-  useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const groupMembers = await getGroupMembers(groupId);
-        setMembers(groupMembers);
-        setLoading(false);
-      } catch (error) {
-        // biome-ignore lint/suspicious/noConsole: allowed
-        console.error("Failed to fetch group members:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchMembers();
-  }, [groupId]);
 
   // Calculate splits when amount, splitType, or paidBy changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: should not be called when splits change
@@ -177,298 +161,282 @@ const ExpenseDialog = ({
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        {loading ? (
-          <Typography>Loading...</Typography>
-        ) : (
-          <>
-            <Box sx={{ mb: 3, mt: 1 }}>
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    row
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      // Ensure the value is properly typed
-                      setValue(
-                        "type",
-                        e.target.value as "standard" | "payment",
-                      );
-                    }}
-                  >
-                    <FormControlLabel
-                      value="standard"
-                      control={<Radio />}
-                      label="Expense"
-                    />
-                    <FormControlLabel
-                      value="payment"
-                      control={<Radio />}
-                      label="Payment"
-                    />
-                  </RadioGroup>
-                )}
-              />
-            </Box>
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {formData.type === "standard" && (
-                <Controller
-                  name="description"
-                  control={control}
-                  rules={{ required: "Description is required for expenses" }}
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      label="Description"
-                      fullWidth
-                      {...field}
-                      error={!!fieldState.error}
-                      helperText={fieldState.error?.message}
-                      required
-                    />
-                  )}
+        <Box sx={{ mb: 3, mt: 1 }}>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <RadioGroup
+                row
+                {...field}
+                onChange={(e) => {
+                  field.onChange(e);
+                  // Ensure the value is properly typed
+                  setValue("type", e.target.value as "standard" | "payment");
+                }}
+              >
+                <FormControlLabel
+                  value="standard"
+                  control={<Radio />}
+                  label="Expense"
+                />
+                <FormControlLabel
+                  value="payment"
+                  control={<Radio />}
+                  label="Payment"
+                />
+              </RadioGroup>
+            )}
+          />
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {formData.type === "standard" && (
+            <Controller
+              name="description"
+              control={control}
+              rules={{ required: "Description is required for expenses" }}
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Description"
+                  fullWidth
+                  {...field}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  required
                 />
               )}
+            />
+          )}
 
-              {formData.type === "payment" && (
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      label="Description (Optional)"
-                      fullWidth
-                      {...field}
-                    />
-                  )}
+          {formData.type === "payment" && (
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Description (Optional)"
+                  fullWidth
+                  {...field}
                 />
               )}
+            />
+          )}
 
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <Controller
-                  name="amount"
-                  control={control}
-                  rules={{
-                    required: "Amount is required",
-                    min: {
-                      value: 0.01,
-                      message: "Amount must be greater than 0",
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Controller
+              name="amount"
+              control={control}
+              rules={{
+                required: "Amount is required",
+                min: {
+                  value: 0.01,
+                  message: "Amount must be greater than 0",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Amount"
+                  type="number"
+                  fullWidth
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(parseFloat(e.target.value) || 0)
+                  }
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  required
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      ),
                     },
                   }}
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      label="Amount"
-                      type="number"
-                      fullWidth
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value) || 0)
-                      }
-                      error={!!fieldState.error}
-                      helperText={fieldState.error?.message}
-                      required
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position="start">$</InputAdornment>
-                          ),
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="currency"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth>
-                      <InputLabel>Currency</InputLabel>
-                      <Select {...field} label="Currency">
-                        <MenuItem value="USD">USD</MenuItem>
-                        <MenuItem value="EUR">EUR</MenuItem>
-                        <MenuItem value="GBP">GBP</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <Controller
-                  name="paidBy"
-                  control={control}
-                  rules={{ required: "Paid by is required" }}
-                  render={({ field, fieldState }) => (
-                    <FormControl fullWidth error={!!fieldState.error}>
-                      <InputLabel>Paid By</InputLabel>
-                      <Select {...field} label="Paid By" required>
-                        {members.map((member) => (
-                          <MenuItem key={member.id} value={member.id}>
-                            {member.name}{" "}
-                            {member.id === currentUserId ? "(You)" : ""}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {fieldState.error && (
-                        <FormHelperText>
-                          {fieldState.error.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-
-                <Controller
-                  name="paidAt"
-                  control={control}
-                  rules={{ required: "Date is required" }}
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      label="Date"
-                      type="date"
-                      fullWidth
-                      {...field}
-                      error={!!fieldState.error}
-                      helperText={fieldState.error?.message}
-                      required
-                    />
-                  )}
-                />
-              </Box>
-
-              {formData.type === "payment" && (
-                <Controller
-                  name="toUser"
-                  control={control}
-                  rules={{
-                    required: "Recipient is required for payments",
-                    validate: (value) =>
-                      value !== formData.paidBy ||
-                      "Recipient cannot be the same as payer",
-                  }}
-                  render={({ field, fieldState }) => (
-                    <FormControl fullWidth error={!!fieldState.error}>
-                      <InputLabel>Paid To</InputLabel>
-                      <Select {...field} label="Paid To" required>
-                        {members
-                          .filter((member) => member.id !== formData.paidBy)
-                          .map((member) => (
-                            <MenuItem key={member.id} value={member.id}>
-                              {member.name}{" "}
-                              {member.id === currentUserId ? "(You)" : ""}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                      {fieldState.error && (
-                        <FormHelperText>
-                          {fieldState.error.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
                 />
               )}
+            />
 
-              {formData.type === "standard" && (
-                <>
-                  <Divider sx={{ my: 1 }} />
-                  <Typography variant="subtitle1">Split Details</Typography>
-
-                  <Controller
-                    name="splitType"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl fullWidth>
-                        <InputLabel>Split Type</InputLabel>
-                        <Select {...field} label="Split Type">
-                          <MenuItem value="EQUAL">Equal</MenuItem>
-                          <MenuItem value="PERCENTAGE">Percentage</MenuItem>
-                          <MenuItem value="CUSTOM">Custom</MenuItem>
-                        </Select>
-                      </FormControl>
-                    )}
-                  />
-
-                  {formData.splits && formData.splits.length > 0 && (
-                    <Box sx={{ mt: 2 }}>
-                      {formData.splits.map((split) => {
-                        const member = members.find(
-                          (m) => m.id === split.userId,
-                        );
-                        return (
-                          <Box
-                            key={split.userId}
-                            sx={{ display: "flex", gap: 2, mb: 1 }}
-                          >
-                            <Typography sx={{ width: "30%", pt: 1 }}>
-                              {member?.name}{" "}
-                              {member?.id === currentUserId ? "(You)" : ""}
-                            </Typography>
-
-                            {formData.splitType === "PERCENTAGE" ? (
-                              <TextField
-                                label="Percentage"
-                                type="number"
-                                value={split.percentage || 0}
-                                onChange={(e) =>
-                                  handleSplitPercentageChange(
-                                    split.userId,
-                                    parseFloat(e.target.value) || 0,
-                                  )
-                                }
-                                slotProps={{
-                                  input: {
-                                    endAdornment: (
-                                      <InputAdornment position="end">
-                                        %
-                                      </InputAdornment>
-                                    ),
-                                  },
-                                }}
-                                sx={{ width: "35%" }}
-                              />
-                            ) : null}
-
-                            <TextField
-                              label="Amount"
-                              type="number"
-                              value={split.amount}
-                              onChange={(e) =>
-                                handleSplitAmountChange(
-                                  split.userId,
-                                  parseFloat(e.target.value) || 0,
-                                )
-                              }
-                              disabled={formData.splitType !== "CUSTOM"}
-                              slotProps={{
-                                input: {
-                                  startAdornment: (
-                                    <InputAdornment position="start">
-                                      $
-                                    </InputAdornment>
-                                  ),
-                                },
-                              }}
-                              sx={{
-                                width:
-                                  formData.splitType === "PERCENTAGE"
-                                    ? "35%"
-                                    : "70%",
-                              }}
-                            />
-                          </Box>
-                        );
-                      })}
-                    </Box>
-                  )}
-                </>
+            <Controller
+              name="currency"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth>
+                  <InputLabel>Currency</InputLabel>
+                  <Select {...field} label="Currency">
+                    <MenuItem value="USD">USD</MenuItem>
+                    <MenuItem value="EUR">EUR</MenuItem>
+                    <MenuItem value="GBP">GBP</MenuItem>
+                  </Select>
+                </FormControl>
               )}
-            </Box>
-          </>
-        )}
+            />
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Controller
+              name="paidBy"
+              control={control}
+              rules={{ required: "Paid by is required" }}
+              render={({ field, fieldState }) => (
+                <FormControl fullWidth error={!!fieldState.error}>
+                  <InputLabel>Paid By</InputLabel>
+                  <Select {...field} label="Paid By" required>
+                    {members.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.name}{" "}
+                        {member.id === currentUserId ? "(You)" : ""}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {fieldState.error && (
+                    <FormHelperText>{fieldState.error.message}</FormHelperText>
+                  )}
+                </FormControl>
+              )}
+            />
+
+            <Controller
+              name="paidAt"
+              control={control}
+              rules={{ required: "Date is required" }}
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Date"
+                  type="date"
+                  fullWidth
+                  {...field}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  required
+                />
+              )}
+            />
+          </Box>
+
+          {formData.type === "payment" && (
+            <Controller
+              name="toUser"
+              control={control}
+              rules={{
+                required: "Recipient is required for payments",
+                validate: (value) =>
+                  value !== formData.paidBy ||
+                  "Recipient cannot be the same as payer",
+              }}
+              render={({ field, fieldState }) => (
+                <FormControl fullWidth error={!!fieldState.error}>
+                  <InputLabel>Paid To</InputLabel>
+                  <Select {...field} label="Paid To" required>
+                    {members
+                      .filter((member) => member.id !== formData.paidBy)
+                      .map((member) => (
+                        <MenuItem key={member.id} value={member.id}>
+                          {member.name}{" "}
+                          {member.id === currentUserId ? "(You)" : ""}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  {fieldState.error && (
+                    <FormHelperText>{fieldState.error.message}</FormHelperText>
+                  )}
+                </FormControl>
+              )}
+            />
+          )}
+
+          {formData.type === "standard" && (
+            <>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1">Split Details</Typography>
+
+              <Controller
+                name="splitType"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Split Type</InputLabel>
+                    <Select {...field} label="Split Type">
+                      <MenuItem value="EQUAL">Equal</MenuItem>
+                      <MenuItem value="PERCENTAGE">Percentage</MenuItem>
+                      <MenuItem value="CUSTOM">Custom</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+              />
+
+              {formData.splits && formData.splits.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  {formData.splits.map((split) => {
+                    const member = members.find((m) => m.id === split.userId);
+                    return (
+                      <Box
+                        key={split.userId}
+                        sx={{ display: "flex", gap: 2, mb: 1 }}
+                      >
+                        <Typography sx={{ width: "30%", pt: 1 }}>
+                          {member?.name}{" "}
+                          {member?.id === currentUserId ? "(You)" : ""}
+                        </Typography>
+
+                        {formData.splitType === "PERCENTAGE" ? (
+                          <TextField
+                            label="Percentage"
+                            type="number"
+                            value={split.percentage || 0}
+                            onChange={(e) =>
+                              handleSplitPercentageChange(
+                                split.userId,
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
+                            slotProps={{
+                              input: {
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    %
+                                  </InputAdornment>
+                                ),
+                              },
+                            }}
+                            sx={{ width: "35%" }}
+                          />
+                        ) : null}
+
+                        <TextField
+                          label="Amount"
+                          type="number"
+                          value={split.amount}
+                          onChange={(e) =>
+                            handleSplitAmountChange(
+                              split.userId,
+                              parseFloat(e.target.value) || 0,
+                            )
+                          }
+                          disabled={formData.splitType !== "CUSTOM"}
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  $
+                                </InputAdornment>
+                              ),
+                            },
+                          }}
+                          sx={{
+                            width:
+                              formData.splitType === "PERCENTAGE"
+                                ? "35%"
+                                : "70%",
+                          }}
+                        />
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onClose()}>Cancel</Button>
