@@ -213,20 +213,20 @@ begin
                         ) s
                         where abs(s.tot) > 0
                     )
-                    select user_id, sum_amt_from - sum_amt_to as balance
+                    select user_id, sum(sum_amt_from - sum_amt_to) as balance
                     from (
-                        select from_user as user_id, sum(amount) as sum_amt_from, 0::numeric as sum_amt_to
-                        from net_pairs
+                        select np.from_user as user_id, sum(amount) as sum_amt_from, 0::numeric as sum_amt_to
+                        from net_pairs np
                         where currency = cur
-                        group by from_user
+                        group by np.from_user
                         union all
-                        select to_user as user_id, 0::numeric, sum(amount)
-                        from net_pairs
+                        select np.to_user as user_id, 0::numeric, sum(amount)
+                        from net_pairs np
                         where currency = cur
-                        group by to_user
+                        group by np.to_user
                     ) x
                     group by user_id
-                    having sum_amt_from - sum_amt_to <> 0
+--                     having balance <> 0
                 ) b
                 where b.balance > 0;
 
@@ -288,20 +288,20 @@ begin
                         ) s
                         where abs(s.tot) > 0
                     )
-                    select user_id, sum_amt_from - sum_amt_to as balance
+                    select user_id, sum(sum_amt_from - sum_amt_to) as balance
                     from (
-                        select from_user as user_id, sum(amount) as sum_amt_from, 0::numeric as sum_amt_to
-                        from net_pairs
+                        select np.from_user as user_id, sum(amount) as sum_amt_from, 0::numeric as sum_amt_to
+                        from net_pairs np
                         where currency = cur
-                        group by from_user
+                        group by np.from_user
                         union all
-                        select to_user as user_id, 0::numeric, sum(amount)
-                        from net_pairs
+                        select np.to_user as user_id, 0::numeric, sum(amount)
+                        from net_pairs np
                         where currency = cur
-                        group by to_user
+                        group by np.to_user
                     ) y
                     group by user_id
-                    having sum_amt_from - sum_amt_to <> 0
+--                     having sum_amt_from - sum_amt_to <> 0
                 ) c
                 where c.balance < 0;
 
