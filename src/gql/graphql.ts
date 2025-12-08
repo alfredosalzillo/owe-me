@@ -250,7 +250,7 @@ export type Expense = Node & {
   splitType: Maybe<SplitType>;
   splits: Maybe<ExpenseSplitConnection>;
   toUser: Maybe<Profile>;
-  type: Scalars['String']['output'];
+  type: ExpenseType;
   updatedAt: Scalars['Datetime']['output'];
 };
 
@@ -304,7 +304,7 @@ export type ExpenseFilter = {
   paidBy: InputMaybe<UuidFilter>;
   splitType: InputMaybe<SplitTypeFilter>;
   toUser: InputMaybe<UuidFilter>;
-  type: InputMaybe<StringFilter>;
+  type: InputMaybe<ExpenseTypeFilter>;
   updatedAt: InputMaybe<DatetimeFilter>;
 };
 
@@ -320,7 +320,7 @@ export type ExpenseInsertInput = {
   paidBy: InputMaybe<Scalars['UUID']['input']>;
   splitType: InputMaybe<SplitType>;
   toUser: InputMaybe<Scalars['UUID']['input']>;
-  type: InputMaybe<Scalars['String']['input']>;
+  type: InputMaybe<ExpenseType>;
   updatedAt: InputMaybe<Scalars['Datetime']['input']>;
 };
 
@@ -431,6 +431,19 @@ export type ExpenseSplitUpdateResponse = {
   records: Array<ExpenseSplit>;
 };
 
+export enum ExpenseType {
+  Payment = 'payment',
+  Standard = 'standard'
+}
+
+/** Boolean expression comparing fields on type "ExpenseType" */
+export type ExpenseTypeFilter = {
+  eq: InputMaybe<ExpenseType>;
+  in: InputMaybe<Array<ExpenseType>>;
+  is: InputMaybe<FilterIs>;
+  neq: InputMaybe<ExpenseType>;
+};
+
 export type ExpenseUpdateInput = {
   amount: InputMaybe<Scalars['BigFloat']['input']>;
   createdAt: InputMaybe<Scalars['Datetime']['input']>;
@@ -443,7 +456,7 @@ export type ExpenseUpdateInput = {
   paidBy: InputMaybe<Scalars['UUID']['input']>;
   splitType: InputMaybe<SplitType>;
   toUser: InputMaybe<Scalars['UUID']['input']>;
-  type: InputMaybe<Scalars['String']['input']>;
+  type: InputMaybe<ExpenseType>;
   updatedAt: InputMaybe<Scalars['Datetime']['input']>;
 };
 
@@ -1307,7 +1320,7 @@ export type HomePageQuery = (
   & { ' $fragmentRefs'?: { 'GroupListFragmentFragment': GroupListFragmentFragment } }
 );
 
-export type ExpenseItemFragmentFragment = { __typename: 'Expense', id: string, type: string, splitType: SplitType | null, description: string | null, amount: string, currency: string, paidAt: string, createdAt: string, updatedAt: string, group: { __typename: 'Group', id: string } | null, toUser: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, paidBy: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, createdBy: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, splits: { __typename: 'ExpenseSplitConnection', edges: Array<{ __typename: 'ExpenseSplitEdge', node: { __typename: 'ExpenseSplit', amount: string, percentage: string | null, user: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null } }> } | null } & { ' $fragmentName'?: 'ExpenseItemFragmentFragment' };
+export type ExpenseItemFragmentFragment = { __typename: 'Expense', id: string, type: ExpenseType, splitType: SplitType | null, description: string | null, amount: string, currency: string, paidAt: string, createdAt: string, updatedAt: string, group: { __typename: 'Group', id: string } | null, toUser: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, paidBy: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, createdBy: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, splits: { __typename: 'ExpenseSplitConnection', edges: Array<{ __typename: 'ExpenseSplitEdge', node: { __typename: 'ExpenseSplit', amount: string, percentage: string | null, user: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null } }> } | null } & { ' $fragmentName'?: 'ExpenseItemFragmentFragment' };
 
 export type GroupFragmentFragment = (
   { __typename: 'Group', id: string, name: string, description: string | null, defaultCurrency: string, debitMode: DebitMode, debits: { __typename: 'DebitConnection', edges: Array<{ __typename: 'DebitEdge', node: { __typename: 'Debit', nodeId: string, amount: string | null, currency: string | null, fromUser: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null, toUser: { __typename: 'Profile', id: string, name: string | null, isMe: boolean | null } | null } }> } | null, expenses: { __typename: 'ExpenseConnection', edges: Array<{ __typename: 'ExpenseEdge', node: (

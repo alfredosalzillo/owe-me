@@ -272,7 +272,7 @@ type Expense implements Node {
     orderBy: [ExpenseSplitOrderBy!]
   ): ExpenseSplitConnection
   toUser: Profile
-  type: String!
+  type: ExpenseType!
   updatedAt: Datetime!
 }
 
@@ -316,7 +316,7 @@ input ExpenseFilter {
   paidBy: UUIDFilter
   splitType: SplitTypeFilter
   toUser: UUIDFilter
-  type: StringFilter
+  type: ExpenseTypeFilter
   updatedAt: DatetimeFilter
 }
 
@@ -332,7 +332,7 @@ input ExpenseInsertInput {
   paidBy: UUID
   splitType: SplitType
   toUser: UUID
-  type: String
+  type: ExpenseType
   updatedAt: Datetime
 }
 
@@ -440,6 +440,21 @@ type ExpenseSplitUpdateResponse {
   records: [ExpenseSplit!]!
 }
 
+enum ExpenseType {
+  payment
+  standard
+}
+
+"""
+Boolean expression comparing fields on type "ExpenseType"
+"""
+input ExpenseTypeFilter {
+  eq: ExpenseType
+  in: [ExpenseType!]
+  is: FilterIs
+  neq: ExpenseType
+}
+
 input ExpenseUpdateInput {
   amount: BigFloat
   createdAt: Datetime
@@ -452,7 +467,7 @@ input ExpenseUpdateInput {
   paidBy: UUID
   splitType: SplitType
   toUser: UUID
-  type: String
+  type: ExpenseType
   updatedAt: Datetime
 }
 

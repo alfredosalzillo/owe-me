@@ -4,12 +4,6 @@ import { useDialogs } from "@toolpad/core/useDialogs";
 import { FC } from "react";
 import ExpenseDialog from "@/components/ExpenseDialog";
 import { addExpense, addPayment } from "@/plugins/api/expenses";
-import {
-  ExpenseSplit,
-  PaymentExpense,
-  StandardExpense,
-  User,
-} from "@/plugins/api/types";
 
 type AddExpenseButtonProps = {
   groupId: string;

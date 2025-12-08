@@ -1,4 +1,4 @@
-import { PaymentExpense, StandardExpense } from "@/plugins/api/types";
+import { StandardExpense } from "@/plugins/api/types";
 import { fetchMe } from "@/plugins/api/user";
 import supabase from "@/plugins/supabase";
 
