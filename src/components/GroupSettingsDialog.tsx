@@ -13,13 +13,13 @@ import {
 import Box from "@mui/material/Box";
 import { DialogProps } from "@toolpad/core";
 import React, { useMemo, useState } from "react";
-import type { Group } from "@/plugins/api/types";
+import type { GroupDebitMode } from "@/plugins/api/types";
 
 export type GroupSettingsValues = {
   name: string;
   description: string | null;
   defaultCurrency: string;
-  debitMode: Group["debitMode"];
+  debitMode: GroupDebitMode;
 };
 
 export type GroupSettingsDialogProps = DialogProps<

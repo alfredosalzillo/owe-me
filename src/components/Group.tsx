@@ -12,7 +12,6 @@ import { FC } from "react";
 import AddExpenseButton from "@/components/AddExpenseButton";
 import ExpenseItem from "@/components/ExpenseItem";
 import { graphql } from "@/gql";
-import { useMe } from "@/plugins/api/user";
 import groupBy from "@/plugins/array/groupBy";
 import Price from "@/plugins/price-format/Price";
 
@@ -32,10 +31,12 @@ const GroupFragment = graphql(`
                     fromUser {
                         id
                         name
+                        isMe
                     }
                     toUser {
                         id
                         name
+                        isMe
                     }
                 }
             }
@@ -60,7 +61,6 @@ export type GroupProps = {
   onUpdate?: () => void;
 };
 const Group: FC<GroupProps> = ({ id, onUpdate }) => {
-  const [me] = useMe();
   const { data } = useSuspenseFragment({
     fragment: GroupFragment,
     fragmentName: "GroupFragment",
@@ -114,14 +114,14 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
             return null;
           }
           if (
-            !(debit.toUser.id === me.id || debit.fromUser.id === me.id) ||
+            !(debit.toUser.isMe || debit.fromUser.isMe) ||
             debit.toUser.id === debit.fromUser.id
           ) {
             return null;
           }
           return (
             <Typography key={debit.nodeId}>
-              {debit.toUser.id === me.id && (
+              {debit.toUser.isMe && (
                 <>
                   You are owned{" "}
                   <Price
@@ -131,7 +131,7 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
                   from {debit.fromUser.name}
                 </>
               )}
-              {debit.fromUser.id === me.id && (
+              {debit.fromUser.isMe && (
                 <>
                   You own{" "}
                   <Price
@@ -161,7 +161,7 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
           ))}
         </List>
       ))}
-      <AddExpenseButton groupId={id} currentUser={me} onAdd={refreshData} />
+      <AddExpenseButton groupId={id} onAdd={refreshData} />
     </Container>
   );
 };

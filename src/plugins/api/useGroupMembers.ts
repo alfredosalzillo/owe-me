@@ -11,6 +11,7 @@ const GroupMembersFragment = graphql(`
                     user {
                         id
                         name
+                        isMe
                     }
                 }
             }

@@ -14,21 +14,20 @@ import { FC, useMemo } from "react";
 import ExpenseDialog, { ExpenseFormData } from "@/components/ExpenseDialog";
 import { graphql } from "@/gql";
 import { updateExpense, updatePayment } from "@/plugins/api/expenses";
-import { Expense, SplitType, User } from "@/plugins/api/types";
-import { useMe } from "@/plugins/api/user";
+import { Expense, SplitType } from "@/plugins/api/types";
 import Price from "@/plugins/price-format/Price";
 
-const expenseAction = (me: User, expense: Expense) => {
+const expenseAction = (expense: Expense) => {
   // Handle payment expenses
   if (expense.type === "payment") {
-    if (expense.paidBy.id === me.id) {
+    if (expense.paidBy.isMe) {
       return (
         <>
           You paid <Price amount={expense.amount} currency={expense.currency} />{" "}
           to {expense.toUser.name}
         </>
       );
-    } else if (expense.toUser.id === me.id) {
+    } else if (expense.toUser.isMe) {
       return (
         <>
           {expense.paidBy.name} paid you{" "}
@@ -48,13 +47,13 @@ const expenseAction = (me: User, expense: Expense) => {
 
   // Handle standard expenses
   if (expense.type === "standard") {
-    if (expense.paidBy.id === me.id) {
+    if (expense.paidBy.isMe) {
       const amountLent = expense.splits
-        .filter((split) => split.user.id !== me.id)
+        .filter((split) => !split.user.isMe)
         .map((split) => split.amount)
         .reduce((a, b) => a + b, 0);
       const lentTos = expense.splits
-        .filter((split) => split.user.id !== me.id)
+        .filter((split) => !split.user.isMe)
         .map((split) => split.user.name)
         .join(", ");
       return (
@@ -66,7 +65,7 @@ const expenseAction = (me: User, expense: Expense) => {
         </>
       );
     }
-    const borrowed = expense.splits.find((split) => split.user.id === me.id);
+    const borrowed = expense.splits.find((split) => split.user.isMe);
     if (borrowed) {
       return (
         <>
@@ -103,14 +102,17 @@ const ExpenseItemFragment = graphql(`
         toUser {
             id
             name
+            isMe
         }
         paidBy {
             id
             name
+            isMe
         }
         createdBy {
             id
             name
+            isMe
         }
         paidAt
         createdAt,
@@ -121,6 +123,7 @@ const ExpenseItemFragment = graphql(`
                     user {
                         id
                         name
+                        isMe
                     }
                     amount
                     percentage
@@ -136,7 +139,6 @@ type ExpenseItemProps = {
 };
 
 const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
-  const [me] = useMe();
   const theme = useTheme();
   const dialogs = useDialogs();
   const { data } = useSuspenseFragment({
@@ -159,14 +161,17 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
         paidBy: {
           id: data.paidBy!.id,
           name: data.paidBy!.name ?? "User",
+          isMe: !!data.paidBy!.isMe,
         },
         createdBy: {
           id: data.createdBy!.id,
           name: data.createdBy!.name ?? "User",
+          isMe: !!data.createdBy!.isMe,
         },
         toUser: {
           id: data.toUser!.id,
           name: data.toUser!.name ?? "User",
+          isMe: !!data.toUser!.isMe,
         },
         paidAt: new Date(data.paidAt),
         createdAt: new Date(data.createdAt),
@@ -182,10 +187,12 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
       paidBy: {
         id: data.paidBy!.id,
         name: data.paidBy!.name ?? "User",
+        isMe: !!data.paidBy!.isMe,
       },
       createdBy: {
         id: data.createdBy!.id,
         name: data.createdBy!.name ?? "User",
+        isMe: !!data.createdBy!.isMe,
       },
       splitType: data.splitType as SplitType,
       splits:
@@ -193,6 +200,7 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
           user: {
             id: edge.node.user!.id,
             name: edge.node.user!.name ?? "User",
+            isMe: !!edge.node.user!.isMe,
           },
           amount: Number(edge.node.amount),
           percentage: Number(edge.node.percentage),
@@ -252,7 +260,6 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
       const data = await dialogs.open(ExpenseDialog, {
         groupId,
         initialData,
-        currentUserId: me.id,
         title: "Edit Expense",
       });
 
@@ -262,44 +269,30 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
 
       // Update the expense based on the dialog result
       if (data.type === "standard") {
-        const splits =
-          data.splits?.map((split) => ({
-            user: {
-              id: split.userId,
-              name: "", // This will be filled by the server
-            },
-            amount: split.amount,
-            percentage: split.percentage,
-          })) || [];
-
-        await updateExpense(groupId, expense.id, {
+        await updateExpense(expense.id, {
           description: data.description,
           amount: data.amount,
           currency: data.currency,
-          paidBy: {
-            id: data.paidBy,
-            name: "", // This will be filled by the server
-          },
+          paidBy: data.paidBy,
           paidAt: new Date(data.paidAt),
           splitType: data.splitType,
-          splits,
+          splits:
+            data.splits?.map((split) => ({
+              user: split.userId,
+              amount: split.amount,
+              percentage: split.percentage,
+            })) || [],
         });
 
         onUpdate?.();
       } else {
-        await updatePayment(groupId, expense.id, {
+        await updatePayment(expense.id, {
           description: data.description,
           amount: data.amount,
           currency: data.currency,
-          paidBy: {
-            id: data.paidBy,
-            name: "", // This will be filled by the server
-          },
+          paidBy: data.paidBy,
           paidAt: new Date(data.paidAt),
-          toUser: {
-            id: data.toUser || "",
-            name: "", // This will be filled by the server
-          },
+          toUser: data.toUser,
         });
       }
 
@@ -351,7 +344,7 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
             {getDescription()}
           </>
         }
-        secondary={expenseAction(me, expense)}
+        secondary={expenseAction(expense)}
       />
     </ListItem>
   );

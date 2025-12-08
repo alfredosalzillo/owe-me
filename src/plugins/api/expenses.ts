@@ -1,24 +1,18 @@
-import {
-  GroupUser,
-  PaymentExpense,
-  StandardExpense,
-} from "@/plugins/api/types";
+import { PaymentExpense, StandardExpense } from "@/plugins/api/types";
 import { fetchMe } from "@/plugins/api/user";
 import supabase from "@/plugins/supabase";
 
-const mapProfileToGroupUser = (row: {
-  id: string;
-  name: string | null;
-}): GroupUser => {
-  return { id: row.id, name: row.name || "User" };
-};
-
 export const addExpense = async (
   groupId: string,
-  expense: Omit<
-    StandardExpense,
-    "id" | "createdAt" | "createdBy" | "updatedAt"
-  >,
+  expense: {
+    splitType: StandardExpense["splitType"];
+    description?: string | null;
+    amount: number;
+    currency: string;
+    paidBy: string;
+    paidAt: Date;
+    splits?: { user: string; amount: number; percentage?: number }[];
+  },
 ): Promise<{ id: string }> => {
   const me = await fetchMe();
   const nowIso = new Date().toISOString();
@@ -30,7 +24,7 @@ export const addExpense = async (
       description: expense.description ?? null,
       amount: expense.amount,
       currency: expense.currency,
-      paid_by: expense.paidBy.id,
+      paid_by: expense.paidBy,
       paid_at: expense.paidAt.toISOString(),
       created_by: me.id,
       created_at: nowIso,
@@ -39,13 +33,13 @@ export const addExpense = async (
     .select("id")
     .single()
     .throwOnError();
-  const expenseId = data.id as string;
 
-  // replace splits
+  const expenseId = data.id as string;
+  // add splits
   if (expense.splits?.length) {
     const splitRows = expense.splits.map((s) => ({
       expense_id: expenseId,
-      user_id: s.user.id,
+      user_id: s.user,
       amount: s.amount,
       percentage: s.percentage ?? null,
     }));
@@ -56,7 +50,14 @@ export const addExpense = async (
 
 export const addPayment = async (
   groupId: string,
-  payment: Omit<PaymentExpense, "id" | "createdAt" | "createdBy" | "updatedAt">,
+  payment: {
+    description?: string | null;
+    amount: number;
+    currency: string;
+    paidBy: string;
+    toUser: string;
+    paidAt: Date;
+  },
 ): Promise<{ id: string }> => {
   const me = await fetchMe();
   const nowIso = new Date().toISOString();
@@ -68,8 +69,8 @@ export const addPayment = async (
       description: payment.description ?? null,
       amount: payment.amount,
       currency: payment.currency,
-      paid_by: payment.paidBy.id,
-      to_user: payment.toUser.id,
+      paid_by: payment.paidBy,
+      to_user: payment.toUser,
       paid_at: payment.paidAt.toISOString(),
       created_by: me.id,
       created_at: nowIso,
@@ -82,22 +83,29 @@ export const addPayment = async (
 };
 
 export const updateExpense = async (
-  groupId: string,
   expenseId: string,
-  expenseUpdate: Partial<
-    Omit<StandardExpense, "id" | "createdAt" | "createdBy" | "updatedAt">
-  >,
+  expenseUpdate: Partial<{
+    description: string | null;
+    amount: number;
+    currency: string;
+    paidBy: string;
+    paidAt: Date;
+    splitType: StandardExpense["splitType"];
+    splits: { user: string; amount: number; percentage?: number }[];
+  }>,
 ): Promise<void> => {
   // Update base row
   if (Object.keys(expenseUpdate).length > 0) {
     await supabase
       .from("expenses")
       .update({
+        type: "standard",
         description: expenseUpdate.description,
         amount: expenseUpdate.amount,
         currency: expenseUpdate.currency,
-        paid_by: expenseUpdate.paidBy?.id,
+        paid_by: expenseUpdate.paidBy,
         paid_at: expenseUpdate.paidAt?.toISOString(),
+        split_type: expenseUpdate.splitType,
       })
       .eq("id", expenseId)
       .throwOnError();
@@ -113,7 +121,7 @@ export const updateExpense = async (
     if (expenseUpdate.splits.length > 0) {
       const rows = expenseUpdate.splits.map((s) => ({
         expense_id: expenseId,
-        user_id: s.user.id,
+        user_id: s.user,
         amount: s.amount,
         percentage: s.percentage ?? null,
       }));
@@ -123,35 +131,30 @@ export const updateExpense = async (
 };
 
 export const updatePayment = async (
-  groupId: string,
   paymentId: string,
-  paymentUpdate: Partial<
-    Omit<PaymentExpense, "id" | "createdAt" | "createdBy" | "updatedAt">
-  >,
+  paymentUpdate: Partial<{
+    description: string | null;
+    amount: number;
+    currency: string;
+    paidBy: string;
+    toUser: string;
+    paidAt: Date;
+  }>,
 ): Promise<void> => {
   if (Object.keys(paymentUpdate).length > 0) {
     await supabase
       .from("expenses")
       .update({
+        type: "payment",
         description: paymentUpdate.description,
         amount: paymentUpdate.amount,
         currency: paymentUpdate.currency,
-        paid_by: paymentUpdate.paidBy?.id,
+        paid_by: paymentUpdate.paidBy,
         paid_at: paymentUpdate.paidAt?.toISOString(),
-        to_user: paymentUpdate.toUser?.id,
+        to_user: paymentUpdate.toUser,
+        split_type: null,
       })
       .eq("id", paymentId)
       .throwOnError();
   }
-};
-
-export const getGroupMembers = async (
-  groupId: string,
-): Promise<GroupUser[]> => {
-  const { data } = await supabase
-    .from("group_members")
-    .select("profiles(id, name)")
-    .eq("group_id", groupId)
-    .throwOnError();
-  return (data || []).map((r) => mapProfileToGroupUser(r.profiles));
 };

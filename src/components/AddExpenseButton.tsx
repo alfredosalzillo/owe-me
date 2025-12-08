@@ -13,15 +13,10 @@ import {
 
 type AddExpenseButtonProps = {
   groupId: string;
-  currentUser: User;
   onAdd?: () => void;
 };
 
-const AddExpenseButton: FC<AddExpenseButtonProps> = ({
-  groupId,
-  currentUser,
-  onAdd,
-}) => {
+const AddExpenseButton: FC<AddExpenseButtonProps> = ({ groupId, onAdd }) => {
   const dialogs = useDialogs();
 
   return (
@@ -34,7 +29,6 @@ const AddExpenseButton: FC<AddExpenseButtonProps> = ({
             // Open the dialog and wait for the result
             const data = await dialogs.open(ExpenseDialog, {
               groupId,
-              currentUserId: currentUser.id,
               title: "Add Expense",
             });
 
@@ -43,57 +37,29 @@ const AddExpenseButton: FC<AddExpenseButtonProps> = ({
             }
 
             if (data.type === "standard") {
-              // Convert the form data to the format expected by the API
-              const splits: ExpenseSplit[] =
-                data.splits?.map((split) => ({
-                  user: {
-                    id: split.userId,
-                    name: "", // This will be filled by the server
-                  },
-                  amount: split.amount,
-                  percentage: split.percentage,
-                })) || [];
-
-              const expenseData: Omit<
-                StandardExpense,
-                "id" | "createdAt" | "createdBy" | "updatedAt"
-              > = {
-                type: "standard",
+              await addExpense(groupId, {
                 description: data.description,
                 amount: data.amount,
                 currency: data.currency,
-                paidBy: {
-                  id: data.paidBy,
-                  name: "", // This will be filled by the server
-                },
+                paidBy: data.paidBy,
                 paidAt: new Date(data.paidAt),
                 splitType: data.splitType,
-                splits,
-              };
-
-              await addExpense(groupId, expenseData);
+                splits:
+                  data.splits?.map((split) => ({
+                    user: split.userId,
+                    amount: split.amount,
+                    percentage: split.percentage,
+                  })) || [],
+              });
             } else {
-              // Convert the form data to the format expected by the API
-              const paymentData: Omit<
-                PaymentExpense,
-                "id" | "createdAt" | "createdBy" | "updatedAt"
-              > = {
-                type: "payment",
+              await addPayment(groupId, {
                 description: data.description,
                 amount: data.amount,
                 currency: data.currency,
-                paidBy: {
-                  id: data.paidBy,
-                  name: "", // This will be filled by the server
-                },
+                paidBy: data.paidBy,
                 paidAt: new Date(data.paidAt),
-                toUser: {
-                  id: data.toUser || "",
-                  name: "", // This will be filled by the server
-                },
-              };
-
-              await addPayment(groupId, paymentData);
+                toUser: data.toUser!,
+              });
             }
 
             // Refresh the expenses list

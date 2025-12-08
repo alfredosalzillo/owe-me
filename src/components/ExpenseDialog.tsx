@@ -46,7 +46,6 @@ export type ExpenseDialogProps = DialogProps<
     groupId: string;
     initialData?: Partial<ExpenseFormData>;
     title?: string;
-    currentUserId: string;
   },
   ExpenseFormData | void
 >;
@@ -54,7 +53,7 @@ export type ExpenseDialogProps = DialogProps<
 const ExpenseDialog = ({
   open,
   onClose,
-  payload: { groupId, initialData, title, currentUserId },
+  payload: { groupId, initialData, title },
 }: ExpenseDialogProps) => {
   const members = useGroupMembers(groupId);
 
@@ -65,7 +64,10 @@ const ExpenseDialog = ({
       description: initialData?.description || "",
       amount: initialData?.amount || 0,
       currency: initialData?.currency || "USD",
-      paidBy: initialData?.paidBy || currentUserId,
+      paidBy:
+        initialData?.paidBy ||
+        members.find((member) => member.isMe)?.id ||
+        members[0]?.id,
       paidAt: initialData?.paidAt || new Date().toISOString().split("T")[0],
       splitType: initialData?.splitType || "EQUAL",
       toUser: initialData?.toUser || "",
@@ -281,8 +283,7 @@ const ExpenseDialog = ({
                   <Select {...field} label="Paid By" required>
                     {members.map((member) => (
                       <MenuItem key={member.id} value={member.id}>
-                        {member.name}{" "}
-                        {member.id === currentUserId ? "(You)" : ""}
+                        {member.name} {member.isMe ? "(You)" : ""}
                       </MenuItem>
                     ))}
                   </Select>
@@ -329,8 +330,7 @@ const ExpenseDialog = ({
                       .filter((member) => member.id !== formData.paidBy)
                       .map((member) => (
                         <MenuItem key={member.id} value={member.id}>
-                          {member.name}{" "}
-                          {member.id === currentUserId ? "(You)" : ""}
+                          {member.name} {member.isMe ? "(You)" : ""}
                         </MenuItem>
                       ))}
                   </Select>
@@ -372,8 +372,7 @@ const ExpenseDialog = ({
                         sx={{ display: "flex", gap: 2, mb: 1 }}
                       >
                         <Typography sx={{ width: "30%", pt: 1 }}>
-                          {member?.name}{" "}
-                          {member?.id === currentUserId ? "(You)" : ""}
+                          {member?.name} {member?.isMe ? "(You)" : ""}
                         </Typography>
 
                         {formData.splitType === "PERCENTAGE" ? (

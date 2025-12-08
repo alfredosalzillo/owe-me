@@ -1069,6 +1069,7 @@ type Profile implements Node {
     orderBy: [GroupMemberOrderBy!]
   ): GroupMemberConnection
   id: UUID!
+  isMe: Boolean
   name: String
   """Globally Unique Record Identifier"""
   nodeId: ID!
