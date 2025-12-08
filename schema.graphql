@@ -252,6 +252,7 @@ type Expense implements Node {
   nodeId: ID!
   paidAt: Datetime!
   paidBy: Profile
+  splitType: SplitType
   splits(
     """Query values in the collection after the provided cursor"""
     after: Cursor
@@ -313,6 +314,7 @@ input ExpenseFilter {
   or: [ExpenseFilter!]
   paidAt: DatetimeFilter
   paidBy: UUIDFilter
+  splitType: SplitTypeFilter
   toUser: UUIDFilter
   type: StringFilter
   updatedAt: DatetimeFilter
@@ -328,6 +330,7 @@ input ExpenseInsertInput {
   id: UUID
   paidAt: Datetime
   paidBy: UUID
+  splitType: SplitType
   toUser: UUID
   type: String
   updatedAt: Datetime
@@ -350,6 +353,7 @@ input ExpenseOrderBy {
   id: OrderByDirection
   paidAt: OrderByDirection
   paidBy: OrderByDirection
+  splitType: OrderByDirection
   toUser: OrderByDirection
   type: OrderByDirection
   updatedAt: OrderByDirection
@@ -446,6 +450,7 @@ input ExpenseUpdateInput {
   id: UUID
   paidAt: Datetime
   paidBy: UUID
+  splitType: SplitType
   toUser: UUID
   type: String
   updatedAt: Datetime
@@ -1277,6 +1282,22 @@ type Query {
     """Sort order to apply to the collection"""
     orderBy: [ProfileOrderBy!]
   ): ProfileConnection
+}
+
+enum SplitType {
+  CUSTOM
+  EQUAL
+  PERCENTAGE
+}
+
+"""
+Boolean expression comparing fields on type "SplitType"
+"""
+input SplitTypeFilter {
+  eq: SplitType
+  in: [SplitType!]
+  is: FilterIs
+  neq: SplitType
 }
 
 """
