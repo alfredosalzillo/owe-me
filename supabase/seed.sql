@@ -163,7 +163,7 @@ into public.expenses (id, group_id, type, split_type, description, amount, curre
                       created_by, updated_at)
 select 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Dinner at mountain hut',
        90.00,
@@ -177,7 +177,7 @@ from ids
 union all
 select 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'PERCENTAGE'::public.split_type,
        'Taxi to cabin',
        30.00,
@@ -191,7 +191,7 @@ from ids
 union all
 select 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'::uuid,
        ski_group_id,
-       'payment',
+       'payment'::public.expense_type,
        null,
        'Bob paid Alice back',
        20.00,
@@ -205,7 +205,7 @@ from ids
 union all
 select 'dddddddd-dddd-4ddd-8ddd-dddddddddddd'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Breakfast at cafe',
        24.00,
@@ -219,7 +219,7 @@ from ids
 union all
 select 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Ski passes',
        180.00,
@@ -233,7 +233,7 @@ from ids
 union all
 select 'ffffffff-ffff-4fff-8fff-ffffffffffff'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Groceries',
        45.00,
@@ -247,7 +247,7 @@ from ids
 union all
 select '11111111-aaaa-4aaa-8aaa-111111111111'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Coffee break',
        9.00,
@@ -261,7 +261,7 @@ from ids
 union all
 select '22222222-bbbb-4bbb-8bbb-222222222222'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'PERCENTAGE'::public.split_type,
        'Gas for the trip',
        60.00,
@@ -275,7 +275,7 @@ from ids
 union all
 select '33333333-cccc-4ccc-8ccc-333333333333'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Snacks',
        12.00,
@@ -289,7 +289,7 @@ from ids
 union all
 select '44444444-dddd-4ddd-8ddd-444444444444'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Lift tickets top-up',
        60.00,
@@ -303,7 +303,7 @@ from ids
 union all
 select '55555555-eeee-4eee-8eee-555555555555'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'CUSTOM'::public.split_type,
        'Parking',
        10.00,
@@ -317,7 +317,7 @@ from ids
 union all
 select '66666666-ffff-4fff-8fff-666666666666'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Equipment rental',
        75.00,
@@ -331,7 +331,7 @@ from ids
 union all
 select '77777777-aaaa-4aaa-8aaa-777777777777'::uuid,
        ski_group_id,
-       'standard',
+       'standard'::public.expense_type,
        'EQUAL'::public.split_type,
        'Hot springs tickets',
        36.00,
@@ -345,7 +345,7 @@ from ids
 union all
 select '88888888-bbbb-4bbb-8bbb-888888888888'::uuid,
        ski_group_id,
-       'payment',
+       'payment'::public.expense_type,
        null,
        'Alice paid Bob back',
        15.00,

@@ -6,6 +6,9 @@ create type public.debit_mode as enum ('default', 'simplified');
 -- Enum for expense split type
 create type public.split_type as enum ('EQUAL', 'PERCENTAGE', 'CUSTOM');
 
+-- Enum for expense type
+create type public.expense_type as enum ('standard', 'payment');
+
 -- Profiles table (maps auth.users -> app profile)
 create table if not exists public.profiles
 (
@@ -41,7 +44,7 @@ create table if not exists public.expenses
 (
     id          uuid primary key     default extensions.uuid_generate_v4(),
     group_id    uuid        not null references public.groups (id) on delete cascade,
-    type        text        not null,                 -- 'standard' | 'payment'
+    type        public.expense_type not null,         -- 'standard' | 'payment'
     split_type  public.split_type,                    -- EQUAL | PERCENTAGE | CUSTOM (only for 'standard')
     description text,
     amount      numeric     not null,
