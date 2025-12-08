@@ -1,6 +1,4 @@
 -- Supabase migration: initial schema for OweMe
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
 
 -- Enum for debit mode
 create type public.debit_mode as enum ('default', 'simplified');

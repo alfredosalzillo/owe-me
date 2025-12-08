@@ -5,9 +5,6 @@
 
 begin;
 
--- Ensure required extensions for helper functions
-create extension if not exists "pgcrypto";
-
 -- Create or ensure local auth users exist (email/password) without using auth.create_user
 -- Note: Creating users via SQL is intended for local development only.
 -- We set email_confirmed_at and encrypted_password so the credentials work immediately.
