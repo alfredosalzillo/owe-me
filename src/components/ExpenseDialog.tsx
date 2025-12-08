@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { DialogProps } from "@toolpad/core";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { SplitType } from "@/plugins/api/types";
 import useGroupMembers from "@/plugins/api/useGroupMembers";
