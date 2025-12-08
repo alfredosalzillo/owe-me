@@ -284,6 +284,8 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
           splitType: data.splitType,
           splits,
         });
+
+        onUpdate?.();
       } else {
         await updatePayment(groupId, expense.id, {
           description: data.description,

@@ -42,7 +42,7 @@ const GroupPage = () => {
           width: "100%",
         }}
       >
-        <Group id={id} />
+        <Group id={id} onUpdate={refetch} />
       </Box>
     </Box>
   );
