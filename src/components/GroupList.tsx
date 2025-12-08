@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@apollo/client/react";
 import {
   Avatar,
   Box,
@@ -9,28 +10,39 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { useDialogs } from "@toolpad/core/useDialogs";
 import { Link, useNavigate } from "react-router";
-import GroupSettingsDialog from "@/components/GroupSettingsDialog";
-import { createGroup, useGroups } from "@/plugins/api/groups";
+import { graphql } from "@/gql";
+import useCreateGroup from "@/plugins/api/useCreateGroup";
+
+const GroupListDocument = graphql(`
+    query GroupList {
+        groups: groupCollection {
+            edges {
+                node {
+                    id
+                    name
+                    description
+                }
+            }
+        }
+    }
+`);
 
 const GroupList = () => {
-  const [groups, revalidateGroups] = useGroups();
-  const dialogs = useDialogs();
+  const { data, refetch } = useSuspenseQuery(GroupListDocument);
   const navigate = useNavigate();
+  const createGroup = useCreateGroup();
 
-  const openCreate = async () => {
-    const values = await dialogs.open(GroupSettingsDialog, {
-      mode: "create",
-      title: "Create Group",
-    });
-    if (!values) {
+  const createGroupAndNavigate = async () => {
+    const group = await createGroup();
+    if (!group) {
       return;
     }
-    const group = await createGroup(values);
-    await revalidateGroups();
+    await refetch();
     navigate(`/groups/${group.id}`);
   };
+
+  const groups = data.groups?.edges.map((edge) => edge.node) ?? [];
 
   if (groups.length === 0) {
     return (
@@ -50,7 +62,11 @@ const GroupList = () => {
         <Typography variant="body2" color="text.secondary" align="center">
           Create your first group to start tracking shared expenses.
         </Typography>
-        <Button variant="contained" onClick={openCreate} sx={{ mt: 1 }}>
+        <Button
+          variant="contained"
+          onClick={createGroupAndNavigate}
+          sx={{ mt: 1 }}
+        >
           Create your first group
         </Button>
       </Box>

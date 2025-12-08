@@ -100,6 +100,13 @@ export type Database = {
             foreignKeyName: "expenses_group_id_fkey";
             columns: ["group_id"];
             isOneToOne: false;
+            referencedRelation: "debits";
+            referencedColumns: ["group_id"];
+          },
+          {
+            foreignKeyName: "expenses_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: false;
             referencedRelation: "groups";
             referencedColumns: ["id"];
           },
@@ -139,6 +146,13 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: false;
+            referencedRelation: "debits";
+            referencedColumns: ["group_id"];
+          },
           {
             foreignKeyName: "group_members_group_id_fkey";
             columns: ["group_id"];
@@ -213,11 +227,95 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      debits: {
+        Row: {
+          amount: number | null;
+          currency: string | null;
+          from_user: string | null;
+          group_id: string | null;
+          to_user: string | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
+      _group_debits: {
+        Args: { gid: string };
+        Returns: {
+          from_user: string;
+          out_amount: number;
+          out_currency: string;
+          out_group_id: string;
+          to_user: string;
+        }[];
+      };
+      create_group: {
+        Args: {
+          p_debit_mode?: Database["public"]["Enums"]["debit_mode"];
+          p_default_currency?: string;
+          p_description?: string;
+          p_name: string;
+        };
+        Returns: {
+          created_at: string;
+          created_by: string;
+          debit_mode: Database["public"]["Enums"]["debit_mode"];
+          default_currency: string;
+          description: string | null;
+          id: string;
+          name: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "groups";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      group: {
+        Args: { gid: string };
+        Returns: {
+          created_at: string;
+          created_by: string;
+          debit_mode: Database["public"]["Enums"]["debit_mode"];
+          default_currency: string;
+          description: string | null;
+          id: string;
+          name: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "groups";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       is_group_admin: { Args: { gid: string }; Returns: boolean };
       is_group_member: { Args: { gid: string }; Returns: boolean };
+      update_group: {
+        Args: {
+          p_debit_mode?: Database["public"]["Enums"]["debit_mode"];
+          p_default_currency?: string;
+          p_description?: string;
+          p_id: string;
+          p_name: string;
+        };
+        Returns: {
+          created_at: string;
+          created_by: string;
+          debit_mode: Database["public"]["Enums"]["debit_mode"];
+          default_currency: string;
+          description: string | null;
+          id: string;
+          name: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "groups";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
     };
     Enums: {
       debit_mode: "default" | "simplified";

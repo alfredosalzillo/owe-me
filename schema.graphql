@@ -139,6 +139,68 @@ input DatetimeListFilter {
   overlaps: [Datetime!]
 }
 
+type Debit implements Node {
+  amount: BigFloat
+  currency: String
+  fromUser: Profile
+  group: Group
+  groupId: UUID
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+  toUser: Profile
+}
+
+type DebitConnection {
+  edges: [DebitEdge!]!
+  pageInfo: PageInfo!
+}
+
+type DebitDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Debit!]!
+}
+
+type DebitEdge {
+  cursor: String!
+  node: Debit!
+}
+
+input DebitFilter {
+  amount: BigFloatFilter
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [DebitFilter!]
+  currency: StringFilter
+  fromUser: UUIDFilter
+  groupId: UUIDFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: DebitFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [DebitFilter!]
+  toUser: UUIDFilter
+}
+
+input DebitInsertInput {
+  amount: BigFloat
+  currency: String
+  fromUser: UUID
+  groupId: UUID
+  toUser: UUID
+}
+
+type DebitInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Debit!]!
+}
+
 enum DebitMode {
   default
   simplified
@@ -152,6 +214,29 @@ input DebitModeFilter {
   in: [DebitMode!]
   is: FilterIs
   neq: DebitMode
+}
+
+input DebitOrderBy {
+  amount: OrderByDirection
+  currency: OrderByDirection
+  fromUser: OrderByDirection
+  groupId: OrderByDirection
+  toUser: OrderByDirection
+}
+
+input DebitUpdateInput {
+  amount: BigFloat
+  currency: String
+  fromUser: UUID
+  groupId: UUID
+  toUser: UUID
+}
+
+type DebitUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [Debit!]!
 }
 
 type Expense implements Node {
@@ -407,6 +492,24 @@ type Group implements Node {
   createdAt: Datetime!
   createdBy: Profile
   debitMode: DebitMode!
+  debits(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: DebitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [DebitOrderBy!]
+  ): DebitConnection
   defaultCurrency: String!
   description: String
   expenses(
@@ -651,6 +754,15 @@ scalar JSON
 
 """The root type for creating and mutating data"""
 type Mutation {
+  """Deletes zero or more records from the `Debit` collection"""
+  deleteFromDebitCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: DebitFilter
+  ): DebitDeleteResponse!
   """Deletes zero or more records from the `Expense` collection"""
   deleteFromExpenseCollection(
     """
@@ -696,6 +808,8 @@ type Mutation {
     """Restricts the mutation's impact to records matching the criteria"""
     filter: ProfileFilter
   ): ProfileDeleteResponse!
+  """Adds one or more `Debit` records to the collection"""
+  insertIntoDebitCollection(objects: [DebitInsertInput!]!): DebitInsertResponse
   """Adds one or more `Expense` records to the collection"""
   insertIntoExpenseCollection(objects: [ExpenseInsertInput!]!): ExpenseInsertResponse
   """Adds one or more `ExpenseSplit` records to the collection"""
@@ -706,6 +820,19 @@ type Mutation {
   insertIntoGroupMemberCollection(objects: [GroupMemberInsertInput!]!): GroupMemberInsertResponse
   """Adds one or more `Profile` records to the collection"""
   insertIntoProfileCollection(objects: [ProfileInsertInput!]!): ProfileInsertResponse
+  """Updates zero or more records in the `Debit` collection"""
+  updateDebitCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: DebitFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: DebitUpdateInput!
+  ): DebitUpdateResponse!
   """Updates zero or more records in the `Expense` collection"""
   updateExpenseCollection(
     """
@@ -810,6 +937,42 @@ type PageInfo {
 
 type Profile implements Node {
   createdAt: Datetime!
+  credits(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: DebitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [DebitOrderBy!]
+  ): DebitConnection
+  debits(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: DebitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [DebitOrderBy!]
+  ): DebitConnection
   expensesCreated(
     """Query values in the collection after the provided cursor"""
     after: Cursor
@@ -992,6 +1155,25 @@ type ProfileUpdateResponse {
 
 """The root type for querying data"""
 type Query {
+  """A pagable collection of type `Debit`"""
+  debitCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: DebitFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [DebitOrderBy!]
+  ): DebitConnection
   """A pagable collection of type `Expense`"""
   expenseCollection(
     """Query values in the collection after the provided cursor"""

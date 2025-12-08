@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DialogProps } from "@toolpad/core";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { Group } from "@/plugins/api/types";
 
 export type GroupSettingsValues = {
@@ -72,7 +72,7 @@ const GroupSettingsDialog = ({
     }
     setSubmitting(true);
     try {
-      onClose({
+      await onClose({
         name: values.name.trim(),
         description: values.description?.trim() || undefined,
         defaultCurrency: values.defaultCurrency,

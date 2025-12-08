@@ -1,34 +1,21 @@
 import SettingsIcon from "@mui/icons-material/Settings";
 import { AppBar, Avatar, Box, IconButton, Toolbar } from "@mui/material";
 import Container from "@mui/material/Container";
-import { useDialogs } from "@toolpad/core/useDialogs";
 import { FC } from "react";
 import BackIconButton from "@/components/BackIconButton";
-import GroupSettingsDialog from "@/components/GroupSettingsDialog";
-import { updateGroup, useGroup } from "@/plugins/api/groups";
+import { useGroup } from "@/plugins/api/groups";
+import useUpdateGroup from "@/plugins/api/useUpdateGroup";
 
 type GroupHeaderProps = {
   id: string;
 };
 const GroupHeader: FC<GroupHeaderProps> = ({ id }) => {
-  const dialogs = useDialogs();
   const [group, revalidateGroup] = useGroup(id);
 
+  const updateGroup = useUpdateGroup();
+
   const openDialog = async () => {
-    const values = await dialogs.open(GroupSettingsDialog, {
-      mode: "edit",
-      title: "Edit Group Settings",
-      initialValues: {
-        name: group.name,
-        description: group.description,
-        defaultCurrency: group.defaultCurrency,
-        debitMode: group.debitMode,
-      },
-    });
-    if (!values) {
-      return;
-    }
-    await updateGroup(id, values);
+    await updateGroup(group.id, group);
     await revalidateGroup();
   };
 

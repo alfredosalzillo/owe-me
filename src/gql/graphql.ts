@@ -133,6 +133,69 @@ export type DatetimeListFilter = {
   overlaps: InputMaybe<Array<Scalars['Datetime']['input']>>;
 };
 
+export type Debit = Node & {
+  __typename?: 'Debit';
+  amount: Maybe<Scalars['BigFloat']['output']>;
+  currency: Maybe<Scalars['String']['output']>;
+  fromUser: Maybe<Profile>;
+  group: Maybe<Group>;
+  groupId: Maybe<Scalars['UUID']['output']>;
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID']['output'];
+  toUser: Maybe<Profile>;
+};
+
+export type DebitConnection = {
+  __typename?: 'DebitConnection';
+  edges: Array<DebitEdge>;
+  pageInfo: PageInfo;
+};
+
+export type DebitDeleteResponse = {
+  __typename?: 'DebitDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int']['output'];
+  /** Array of records impacted by the mutation */
+  records: Array<Debit>;
+};
+
+export type DebitEdge = {
+  __typename?: 'DebitEdge';
+  cursor: Scalars['String']['output'];
+  node: Debit;
+};
+
+export type DebitFilter = {
+  amount: InputMaybe<BigFloatFilter>;
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and: InputMaybe<Array<DebitFilter>>;
+  currency: InputMaybe<StringFilter>;
+  fromUser: InputMaybe<UuidFilter>;
+  groupId: InputMaybe<UuidFilter>;
+  nodeId: InputMaybe<IdFilter>;
+  /** Negates a filter */
+  not: InputMaybe<DebitFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or: InputMaybe<Array<DebitFilter>>;
+  toUser: InputMaybe<UuidFilter>;
+};
+
+export type DebitInsertInput = {
+  amount: InputMaybe<Scalars['BigFloat']['input']>;
+  currency: InputMaybe<Scalars['String']['input']>;
+  fromUser: InputMaybe<Scalars['UUID']['input']>;
+  groupId: InputMaybe<Scalars['UUID']['input']>;
+  toUser: InputMaybe<Scalars['UUID']['input']>;
+};
+
+export type DebitInsertResponse = {
+  __typename?: 'DebitInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int']['output'];
+  /** Array of records impacted by the mutation */
+  records: Array<Debit>;
+};
+
 export enum DebitMode {
   Default = 'default',
   Simplified = 'simplified'
@@ -144,6 +207,30 @@ export type DebitModeFilter = {
   in: InputMaybe<Array<DebitMode>>;
   is: InputMaybe<FilterIs>;
   neq: InputMaybe<DebitMode>;
+};
+
+export type DebitOrderBy = {
+  amount: InputMaybe<OrderByDirection>;
+  currency: InputMaybe<OrderByDirection>;
+  fromUser: InputMaybe<OrderByDirection>;
+  groupId: InputMaybe<OrderByDirection>;
+  toUser: InputMaybe<OrderByDirection>;
+};
+
+export type DebitUpdateInput = {
+  amount: InputMaybe<Scalars['BigFloat']['input']>;
+  currency: InputMaybe<Scalars['String']['input']>;
+  fromUser: InputMaybe<Scalars['UUID']['input']>;
+  groupId: InputMaybe<Scalars['UUID']['input']>;
+  toUser: InputMaybe<Scalars['UUID']['input']>;
+};
+
+export type DebitUpdateResponse = {
+  __typename?: 'DebitUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int']['output'];
+  /** Array of records impacted by the mutation */
+  records: Array<Debit>;
 };
 
 export type Expense = Node & {
@@ -394,6 +481,7 @@ export type Group = Node & {
   createdAt: Scalars['Datetime']['output'];
   createdBy: Maybe<Profile>;
   debitMode: DebitMode;
+  debits: Maybe<DebitConnection>;
   defaultCurrency: Scalars['String']['output'];
   description: Maybe<Scalars['String']['output']>;
   expenses: Maybe<ExpenseConnection>;
@@ -402,6 +490,17 @@ export type Group = Node & {
   name: Scalars['String']['output'];
   /** Globally Unique Record Identifier */
   nodeId: Scalars['ID']['output'];
+};
+
+
+export type GroupDebitsArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<DebitFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<DebitOrderBy>>;
 };
 
 
@@ -621,6 +720,8 @@ export type IntListFilter = {
 /** The root type for creating and mutating data */
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Deletes zero or more records from the `Debit` collection */
+  deleteFromDebitCollection: DebitDeleteResponse;
   /** Deletes zero or more records from the `Expense` collection */
   deleteFromExpenseCollection: ExpenseDeleteResponse;
   /** Deletes zero or more records from the `ExpenseSplit` collection */
@@ -631,6 +732,8 @@ export type Mutation = {
   deleteFromGroupMemberCollection: GroupMemberDeleteResponse;
   /** Deletes zero or more records from the `Profile` collection */
   deleteFromProfileCollection: ProfileDeleteResponse;
+  /** Adds one or more `Debit` records to the collection */
+  insertIntoDebitCollection: Maybe<DebitInsertResponse>;
   /** Adds one or more `Expense` records to the collection */
   insertIntoExpenseCollection: Maybe<ExpenseInsertResponse>;
   /** Adds one or more `ExpenseSplit` records to the collection */
@@ -641,6 +744,8 @@ export type Mutation = {
   insertIntoGroupMemberCollection: Maybe<GroupMemberInsertResponse>;
   /** Adds one or more `Profile` records to the collection */
   insertIntoProfileCollection: Maybe<ProfileInsertResponse>;
+  /** Updates zero or more records in the `Debit` collection */
+  updateDebitCollection: DebitUpdateResponse;
   /** Updates zero or more records in the `Expense` collection */
   updateExpenseCollection: ExpenseUpdateResponse;
   /** Updates zero or more records in the `ExpenseSplit` collection */
@@ -651,6 +756,13 @@ export type Mutation = {
   updateGroupMemberCollection: GroupMemberUpdateResponse;
   /** Updates zero or more records in the `Profile` collection */
   updateProfileCollection: ProfileUpdateResponse;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromDebitCollectionArgs = {
+  atMost?: Scalars['Int']['input'];
+  filter: InputMaybe<DebitFilter>;
 };
 
 
@@ -690,6 +802,12 @@ export type MutationDeleteFromProfileCollectionArgs = {
 
 
 /** The root type for creating and mutating data */
+export type MutationInsertIntoDebitCollectionArgs = {
+  objects: Array<DebitInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
 export type MutationInsertIntoExpenseCollectionArgs = {
   objects: Array<ExpenseInsertInput>;
 };
@@ -716,6 +834,14 @@ export type MutationInsertIntoGroupMemberCollectionArgs = {
 /** The root type for creating and mutating data */
 export type MutationInsertIntoProfileCollectionArgs = {
   objects: Array<ProfileInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateDebitCollectionArgs = {
+  atMost?: Scalars['Int']['input'];
+  filter: InputMaybe<DebitFilter>;
+  set: DebitUpdateInput;
 };
 
 
@@ -792,6 +918,8 @@ export type PageInfo = {
 export type Profile = Node & {
   __typename?: 'Profile';
   createdAt: Scalars['Datetime']['output'];
+  credits: Maybe<DebitConnection>;
+  debits: Maybe<DebitConnection>;
   expensesCreated: Maybe<ExpenseConnection>;
   expensesPaid: Maybe<ExpenseConnection>;
   expensesReceived: Maybe<ExpenseConnection>;
@@ -802,6 +930,28 @@ export type Profile = Node & {
   /** Globally Unique Record Identifier */
   nodeId: Scalars['ID']['output'];
   splitsParticipating: Maybe<ExpenseSplitConnection>;
+};
+
+
+export type ProfileCreditsArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<DebitFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<DebitOrderBy>>;
+};
+
+
+export type ProfileDebitsArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<DebitFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<DebitOrderBy>>;
 };
 
 
@@ -940,6 +1090,8 @@ export type ProfileUpdateResponse = {
 /** The root type for querying data */
 export type Query = {
   __typename?: 'Query';
+  /** A pagable collection of type `Debit` */
+  debitCollection: Maybe<DebitConnection>;
   /** A pagable collection of type `Expense` */
   expenseCollection: Maybe<ExpenseConnection>;
   /** A pagable collection of type `ExpenseSplit` */
@@ -955,6 +1107,18 @@ export type Query = {
   node: Maybe<Node>;
   /** A pagable collection of type `Profile` */
   profileCollection: Maybe<ProfileConnection>;
+};
+
+
+/** The root type for querying data */
+export type QueryDebitCollectionArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<DebitFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<DebitOrderBy>>;
 };
 
 
@@ -1105,12 +1269,10 @@ export type UuidListFilter = {
   overlaps: InputMaybe<Array<Scalars['UUID']['input']>>;
 };
 
-export type GroupQueryVariables = Exact<{
-  id: Scalars['UUID']['input'];
-}>;
+export type GroupListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GroupQuery = { __typename: 'Query', group: { __typename: 'Group', id: string, description: string | null, defaultCurrency: string, createdBy: { __typename: 'Profile', id: string } | null } | null };
+export type GroupListQuery = { __typename: 'Query', groups: { __typename: 'GroupConnection', edges: Array<{ __typename: 'GroupEdge', node: { __typename: 'Group', id: string, name: string, description: string | null } }> } | null };
 
 
-export const GroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Group"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"gid"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"defaultCurrency"}}]}}]}}]} as unknown as DocumentNode<GroupQuery, GroupQueryVariables>;
+export const GroupListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GroupList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","alias":{"kind":"Name","value":"groups"},"name":{"kind":"Name","value":"groupCollection"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GroupListQuery, GroupListQueryVariables>;

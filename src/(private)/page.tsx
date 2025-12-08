@@ -17,17 +17,15 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import { useDialogs } from "@toolpad/core/useDialogs";
-import React, { lazy, Suspense, useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useNavigate } from "react-router";
 import GroupList from "@/components/GroupList";
-import GroupSettingsDialog from "@/components/GroupSettingsDialog";
 import config from "@/config";
-import { createGroup, useGroups } from "@/plugins/api/groups";
+import { useGroups } from "@/plugins/api/groups";
+import useCreateGroup from "@/plugins/api/useCreateGroup";
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const dialogs = useDialogs();
   const navigate = useNavigate();
   const [, revalidateGroups] = useGroups();
 
@@ -35,18 +33,17 @@ const Header = () => {
     setDrawerOpen((prev) => !prev);
   };
 
-  const openCreate = async () => {
-    const values = await dialogs.open(GroupSettingsDialog, {
-      mode: "create",
-      title: "Create Group",
-    });
-    if (!values) {
+  const createGroup = useCreateGroup();
+
+  const createGroupAndNavigate = async () => {
+    const group = await createGroup();
+    if (!group) {
       return;
     }
-    const group = await createGroup(values);
     await revalidateGroups();
     navigate(`/groups/${group.id}`);
   };
+
   return (
     <Box>
       <AppBar
@@ -71,7 +68,7 @@ const Header = () => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {config.siteName}
           </Typography>
-          <Button color="inherit" onClick={openCreate}>
+          <Button color="inherit" onClick={createGroupAndNavigate}>
             New Group
           </Button>
         </Toolbar>

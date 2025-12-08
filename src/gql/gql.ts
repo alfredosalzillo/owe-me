@@ -14,10 +14,10 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n    query Group($id: UUID!) {\n        group(gid: $id) {\n            id\n            createdBy {\n                id\n            }\n            description\n            defaultCurrency\n        }\n    }\n": typeof types.GroupDocument,
+    "\n    query GroupList {\n        groups: groupCollection {\n            edges {\n                node {\n                    id\n                    name\n                    description\n                }\n            }\n        }\n    }\n": typeof types.GroupListDocument,
 };
 const documents: Documents = {
-    "\n    query Group($id: UUID!) {\n        group(gid: $id) {\n            id\n            createdBy {\n                id\n            }\n            description\n            defaultCurrency\n        }\n    }\n": types.GroupDocument,
+    "\n    query GroupList {\n        groups: groupCollection {\n            edges {\n                node {\n                    id\n                    name\n                    description\n                }\n            }\n        }\n    }\n": types.GroupListDocument,
 };
 
 /**
@@ -37,7 +37,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n    query Group($id: UUID!) {\n        group(gid: $id) {\n            id\n            createdBy {\n                id\n            }\n            description\n            defaultCurrency\n        }\n    }\n"): (typeof documents)["\n    query Group($id: UUID!) {\n        group(gid: $id) {\n            id\n            createdBy {\n                id\n            }\n            description\n            defaultCurrency\n        }\n    }\n"];
+export function graphql(source: "\n    query GroupList {\n        groups: groupCollection {\n            edges {\n                node {\n                    id\n                    name\n                    description\n                }\n            }\n        }\n    }\n"): (typeof documents)["\n    query GroupList {\n        groups: groupCollection {\n            edges {\n                node {\n                    id\n                    name\n                    description\n                }\n            }\n        }\n    }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
