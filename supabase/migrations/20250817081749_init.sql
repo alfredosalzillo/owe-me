@@ -17,7 +17,7 @@ create table if not exists public.profiles
 -- Groups
 create table if not exists public.groups
 (
-    id               uuid primary key           default uuid_generate_v4(),
+    id               uuid primary key           default extensions.uuid_generate_v4(),
     name             text              not null,
     description      text,
     default_currency text              not null default 'EUR',
@@ -39,7 +39,7 @@ create table if not exists public.group_members
 -- Expenses (both standard and payment)
 create table if not exists public.expenses
 (
-    id          uuid primary key     default uuid_generate_v4(),
+    id          uuid primary key     default extensions.uuid_generate_v4(),
     group_id    uuid        not null references public.groups (id) on delete cascade,
     type        text        not null,                 -- 'standard' | 'payment'
     split_type  public.split_type,                    -- EQUAL | PERCENTAGE | CUSTOM (only for 'standard')
