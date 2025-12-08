@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@apollo/client/react";
+import { useSuspenseFragment, useSuspenseQuery } from "@apollo/client/react";
 import {
   Avatar,
   Box,
@@ -10,12 +10,13 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import { FC } from "react";
 import { Link, useNavigate } from "react-router";
 import { graphql } from "@/gql";
 import useCreateGroup from "@/plugins/api/useCreateGroup";
 
-const GroupListDocument = graphql(`
-    query GroupList {
+const GroupListFragment = graphql(`
+    fragment GroupListFragment on Query {
         groups: groupCollection {
             edges {
                 node {
@@ -28,8 +29,16 @@ const GroupListDocument = graphql(`
     }
 `);
 
-const GroupList = () => {
-  const { data, refetch } = useSuspenseQuery(GroupListDocument);
+type GroupListProps = {
+  onCreateGroup?: (groupId: string) => void;
+};
+const GroupList: FC<GroupListProps> = ({ onCreateGroup }) => {
+  const { data } = useSuspenseFragment({
+    fragment: GroupListFragment,
+    from: {
+      __typename: "Query",
+    },
+  });
   const navigate = useNavigate();
   const createGroup = useCreateGroup();
 
@@ -38,7 +47,7 @@ const GroupList = () => {
     if (!group) {
       return;
     }
-    await refetch();
+    onCreateGroup?.(group.id);
     navigate(`/groups/${group.id}`);
   };
 

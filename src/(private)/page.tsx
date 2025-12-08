@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@apollo/client/react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -17,13 +18,23 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import React, { Suspense, useState } from "react";
+import React, { FC, Suspense, useState } from "react";
 import { useNavigate } from "react-router";
 import GroupList from "@/components/GroupList";
 import config from "@/config";
+import { graphql } from "@/gql";
 import useCreateGroup from "@/plugins/api/useCreateGroup";
 
-const Header = () => {
+const HomeDocument = graphql(`
+    query HomePage {
+        ...GroupListFragment
+    }
+`);
+
+type HeaderProps = {
+  onCreateGroup?: (groupId: string) => void;
+};
+const Header: FC<HeaderProps> = ({ onCreateGroup }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -38,7 +49,7 @@ const Header = () => {
     if (!group) {
       return;
     }
-    navigate(`/groups/${group.id}`);
+    onCreateGroup?.(group.id);
   };
 
   return (
@@ -109,42 +120,56 @@ const Header = () => {
   );
 };
 
-const Home = () => (
-  <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      minHeight: "100vh",
-    }}
-  >
-    <Header />
+const Home = () => {
+  const { refetch } = useSuspenseQuery(HomeDocument);
+  const navigate = useNavigate();
+  return (
     <Box
-      component="main"
       sx={{
-        flexGrow: 1,
-        p: 0,
-        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
       }}
     >
-      <Container disableGutters sx={{ pt: 2, pb: 2 }}>
-        <Suspense
-          fallback={
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+      <Header
+        onCreateGroup={async (groupId) => {
+          await refetch();
+          navigate(`/groups/${groupId}`);
+        }}
+      />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 0,
+          width: "100%",
+        }}
+      >
+        <Container disableGutters sx={{ pt: 2, pb: 2 }}>
+          <Suspense
+            fallback={
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            }
+          >
+            <GroupList
+              onCreateGroup={async (groupId) => {
+                await refetch();
+                navigate(`/groups/${groupId}`);
               }}
-            >
-              <CircularProgress />
-            </Box>
-          }
-        >
-          <GroupList />
-        </Suspense>
-      </Container>
+            />
+          </Suspense>
+        </Container>
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 export default Home;
