@@ -40,7 +40,9 @@ const GroupFragment = graphql(`
                 }
             }
         }
-        expenses {
+        expenses(orderBy: [{
+            paidAt: DescNullsFirst
+        }]) {
             edges {
                 node {
                     id
