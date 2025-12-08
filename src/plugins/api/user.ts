@@ -1,8 +1,9 @@
-import { User } from "@/plugins/api/types";
 import supabase from "@/plugins/supabase";
-import useAsync from "@/plugins/useAsync";
 
-export const fetchMe = async (): Promise<User> => {
+export const fetchMe = async (): Promise<{
+  id: string;
+  name: string;
+}> => {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
     throw new Error("Not authenticated");
@@ -20,8 +21,4 @@ export const fetchMe = async (): Promise<User> => {
     authUser.email?.split("@")[0] ||
     "User";
   return { id: authUser.id, name };
-};
-
-export const useMe = () => {
-  return useAsync(`me`, () => fetchMe());
 };
