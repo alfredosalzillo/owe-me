@@ -26,7 +26,7 @@ const useUpdateGroup = () => {
         .rpc("update_group", {
           p_id: id,
           p_name: values.name,
-          p_description: values.description,
+          p_description: values.description ?? "",
           p_debit_mode: values.debitMode,
           p_default_currency: values.defaultCurrency,
         })

@@ -16,7 +16,7 @@ const useCreateGroup = () => {
     const { data: group } = await supabase
       .rpc("create_group", {
         p_name: values.name,
-        p_description: values.description,
+        p_description: values.description ?? "",
         p_debit_mode: values.debitMode,
         p_default_currency: values.defaultCurrency,
       })
