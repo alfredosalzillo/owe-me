@@ -201,6 +201,7 @@ create or replace function public.group(gid uuid)
     returns public.groups
     language sql
     stable
+    set search_path = ''
 as
 $$
 select * from public.groups where id = gid;

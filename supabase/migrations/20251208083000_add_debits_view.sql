@@ -17,6 +17,7 @@ create or replace function public._group_debits(gid uuid)
             )
     language plpgsql
     stable
+    set search_path = ''
 as
 $$
 declare

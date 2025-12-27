@@ -16,6 +16,7 @@ create or replace function public.create_group(
     security definer
     language plpgsql
     volatile
+    set search_path = ''
 as
 $$
 declare
@@ -53,6 +54,7 @@ create or replace function public.update_group(
     security definer
     language plpgsql
     volatile
+    set search_path = ''
 as
 $$
 declare
