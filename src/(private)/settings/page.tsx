@@ -77,7 +77,6 @@ const SettingsForm: FC = () => {
       .upload(filePath, file);
 
     if (uploadError) {
-      console.error(uploadError);
       notifications.show(
         "Failed to upload avatar image. Please try again later.",
         {
