@@ -6,7 +6,11 @@ import vitePluginReactAppRouter from "./src/plugins/vite-plugin-react-app-router
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: ['babel-plugin-react-compiler'],
+      },
+    }),
     vitePluginReactAppRouter({
       root: "src",
     }),
