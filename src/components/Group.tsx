@@ -1,5 +1,7 @@
 import { useSuspenseFragment } from "@apollo/client/react";
 import {
+  Avatar,
+  AvatarGroup,
   Box,
   Divider,
   List,
@@ -9,10 +11,11 @@ import {
   Typography,
 } from "@mui/material";
 import Container from "@mui/material/Container";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import AddExpenseButton from "@/components/AddExpenseButton";
 import ExpenseItem from "@/components/ExpenseItem";
 import { graphql } from "@/gql";
+import useGroupMembers from "@/plugins/api/useGroupMembers";
 import groupBy from "@/plugins/array/groupBy";
 import Price from "@/plugins/price-format/Price";
 
@@ -58,35 +61,74 @@ const GroupFragment = graphql(`
     }
 `);
 
-export type GroupProps = {
-  id: string;
-  onUpdate?: () => void;
-};
-const Group: FC<GroupProps> = ({ id, onUpdate }) => {
+const useGroup = (groupId: string) => {
   const { data } = useSuspenseFragment({
     fragment: GroupFragment,
     fragmentName: "GroupFragment",
     from: {
       __typename: "Group",
-      id,
+      id: groupId,
     },
   });
-  const debits = data.debits?.edges.map((edge) => edge.node) ?? [];
-  const expenses = data.expenses?.edges.map((edge) => edge.node) ?? [];
+  return useMemo(() => {
+    const debits = data.debits?.edges.map((edge) => edge.node) ?? [];
+    const expenses = data.expenses?.edges.map((edge) => edge.node) ?? [];
 
-  const groupedExpenses = Object.entries(
-    groupBy(expenses, (expense) => {
-      const date = new Date(expense.paidAt);
-      date.setHours(0, 0, 0, 0);
-      return date.toISOString();
-    }),
-  )
-    .map(([dateTime, groupExpenses]) => ({
-      paidAt: new Date(dateTime),
-      expenses: groupExpenses,
-    }))
-    .toSorted((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
+    const groupedExpenses = Object.entries(
+      groupBy(expenses, (expense) => {
+        const date = new Date(expense.paidAt);
+        date.setHours(0, 0, 0, 0);
+        return date.toISOString();
+      }),
+    )
+      .map(([dateTime, groupExpenses]) => ({
+        paidAt: new Date(dateTime),
+        expenses: groupExpenses,
+      }))
+      .toSorted((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
 
+    return {
+      data,
+      debits,
+      expenses,
+      groupedExpenses,
+    };
+  }, [data]);
+};
+
+type GroupMembersProps = {
+  groupId: string;
+};
+const GroupMembers: FC<GroupMembersProps> = ({ groupId }) => {
+  const members = useGroupMembers(groupId);
+  return (
+    <Container
+      sx={{
+        pt: 2,
+        pb: 2,
+        display: "flex",
+        flexDirection: "row",
+        gap: 2,
+        alignItems: "center",
+        width: "100%",
+      }}
+    >
+      <Typography variant="h5">Members</Typography>
+      <AvatarGroup sx={{ flex: 1 }}>
+        {members.map((member) => (
+          <Avatar key={member.id}>{member.name?.[0] ?? "U"}</Avatar>
+        ))}
+      </AvatarGroup>
+    </Container>
+  );
+};
+
+export type GroupProps = {
+  id: string;
+  onUpdate?: () => void;
+};
+const Group: FC<GroupProps> = ({ id, onUpdate }) => {
+  const { data, debits, groupedExpenses } = useGroup(id);
   const refreshData = () => {
     onUpdate?.();
   };
@@ -148,6 +190,8 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
           );
         })}
       </Container>
+      <Divider />
+      <GroupMembers groupId={id} />
       <Divider />
       {groupedExpenses.map(({ paidAt, expenses }) => (
         <List key={paidAt.toISOString()}>
