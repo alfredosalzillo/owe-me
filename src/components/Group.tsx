@@ -116,7 +116,9 @@ const GroupMembers: FC<GroupMembersProps> = ({ groupId }) => {
       <Typography variant="h5">Members</Typography>
       <AvatarGroup sx={{ flex: 1 }}>
         {members.map((member) => (
-          <Avatar key={member.id}>{member.name?.[0] ?? "U"}</Avatar>
+          <Avatar src={member.avatarUrl ?? undefined} key={member.id}>
+            {member.name?.[0] ?? "U"}
+          </Avatar>
         ))}
       </AvatarGroup>
     </Container>

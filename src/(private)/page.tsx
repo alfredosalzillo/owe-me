@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@apollo/client/react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import SettingsIcon from "@mui/icons-material/Settings";
 import {
   AppBar,
   Button,
@@ -101,6 +102,19 @@ const Header: FC<HeaderProps> = ({ onCreateGroup }) => {
         <Toolbar />
         <Divider />
         <List>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                setDrawerOpen(false);
+                navigate("/settings");
+              }}
+            >
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          </ListItem>
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {

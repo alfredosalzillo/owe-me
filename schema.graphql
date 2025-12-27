@@ -956,6 +956,7 @@ type PageInfo {
 }
 
 type Profile implements Node {
+  avatarUrl: String
   createdAt: Datetime!
   credits(
     """Query values in the collection after the provided cursor"""
@@ -1130,6 +1131,7 @@ input ProfileFilter {
   Returns true only if all its inner filters are true, otherwise returns false
   """
   and: [ProfileFilter!]
+  avatarUrl: StringFilter
   createdAt: DatetimeFilter
   id: UUIDFilter
   name: StringFilter
@@ -1143,6 +1145,7 @@ input ProfileFilter {
 }
 
 input ProfileInsertInput {
+  avatarUrl: String
   createdAt: Datetime
   id: UUID
   name: String
@@ -1156,12 +1159,14 @@ type ProfileInsertResponse {
 }
 
 input ProfileOrderBy {
+  avatarUrl: OrderByDirection
   createdAt: OrderByDirection
   id: OrderByDirection
   name: OrderByDirection
 }
 
 input ProfileUpdateInput {
+  avatarUrl: String
   createdAt: Datetime
   id: UUID
   name: String
@@ -1274,6 +1279,7 @@ type Query {
   ): GroupMemberConnection
   isGroupAdmin(gid: UUID!): Boolean
   isGroupMember(gid: UUID!): Boolean
+  me: Profile
   """Retrieve a record by its `ID`"""
   node(
     """The record's `ID`"""

@@ -11,6 +11,7 @@ const GroupMembersFragment = graphql(`
                     user {
                         id
                         name
+                        avatarUrl
                         isMe
                     }
                 }
@@ -19,7 +20,13 @@ const GroupMembersFragment = graphql(`
     }
 `);
 
-const useGroupMembers = (groupId: string) => {
+type GroupMember = {
+  id: string;
+  name: string | null;
+  avatarUrl: string | null;
+  isMe: boolean | null;
+};
+const useGroupMembers = (groupId: string): GroupMember[] => {
   const { data } = useSuspenseFragment({
     fragment: GroupMembersFragment,
     from: {
