@@ -5,6 +5,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Toolbar,
   Typography,
 } from "@mui/material";
 import Container from "@mui/material/Container";
@@ -162,6 +163,7 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
           ))}
         </List>
       ))}
+      <Toolbar />
       <AddExpenseButton groupId={id} onAdd={refreshData} />
     </Container>
   );
