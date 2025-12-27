@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import GroupSettingsDialog, {
   GroupSettingsValues,
 } from "@/components/GroupSettingsDialog";
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 const useUpdateGroup = () => {
   const dialogs = useDialogs();

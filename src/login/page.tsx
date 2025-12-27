@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import config from "@/config";
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 const Page = () => {
   const [email, setEmail] = useState("");

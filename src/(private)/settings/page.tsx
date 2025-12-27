@@ -18,7 +18,7 @@ import { useNotifications } from "@toolpad/core";
 import React, { FC, Suspense, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { graphql } from "@/gql";
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 const SettingsQuery = graphql(`
     query SettingsPage {

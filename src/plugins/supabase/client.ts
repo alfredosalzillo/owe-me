@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "@/@types/supabase";
+import { Database } from "@/plugins/supabase/db";
 
 // Read from Vite env vars
 export const SUPABASE_URL = import.meta.env.VITE_PUBLIC_SUPABASE_URL;

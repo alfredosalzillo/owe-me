@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 const AuthLogout = () => {
   const navigate = useNavigate();

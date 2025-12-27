@@ -5,7 +5,7 @@ import {
 } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
 import { HttpLink } from "@apollo/client/link/http";
-import supabase, { SUPABASE_ANON_KEY, SUPABASE_URL } from "./supabase";
+import supabase, { SUPABASE_ANON_KEY, SUPABASE_URL } from "./client";
 
 const cache = new InMemoryCache({
   dataIdFromObject(responseObject) {

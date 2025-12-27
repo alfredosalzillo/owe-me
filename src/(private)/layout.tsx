@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router";
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 const Authorized: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(true);

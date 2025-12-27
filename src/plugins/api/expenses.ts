@@ -1,6 +1,6 @@
 import { StandardExpense } from "@/plugins/api/types";
 import { fetchMe } from "@/plugins/api/user";
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 export const addExpense = async (
   groupId: string,

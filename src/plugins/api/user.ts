@@ -1,4 +1,4 @@
-import supabase from "@/plugins/supabase";
+import supabase from "@/plugins/supabase/client";
 
 export const fetchMe = async (): Promise<{
   id: string;
