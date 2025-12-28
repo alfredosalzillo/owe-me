@@ -129,6 +129,71 @@ export type Database = {
           },
         ];
       };
+      group_invites: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          email: string | null;
+          expires_at: string;
+          group_id: string;
+          id: string;
+          invited_user_id: string | null;
+          token: string;
+          used_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          email?: string | null;
+          expires_at?: string;
+          group_id: string;
+          id?: string;
+          invited_user_id?: string | null;
+          token?: string;
+          used_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          email?: string | null;
+          expires_at?: string;
+          group_id?: string;
+          id?: string;
+          invited_user_id?: string | null;
+          token?: string;
+          used_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "group_invites_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "group_invites_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: false;
+            referencedRelation: "debits";
+            referencedColumns: ["group_id"];
+          },
+          {
+            foreignKeyName: "group_invites_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: false;
+            referencedRelation: "groups";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "group_invites_invited_user_id_fkey";
+            columns: ["invited_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       group_members: {
         Row: {
           group_id: string;
@@ -259,6 +324,42 @@ export type Database = {
         Args: { p: Database["public"]["Tables"]["profiles"]["Row"] };
         Returns: boolean;
       };
+      accept_invite: { Args: { invite_token: string }; Returns: boolean };
+      add_expense: {
+        Args: {
+          p_amount: number;
+          p_currency: string;
+          p_description: string;
+          p_group_id: string;
+          p_paid_at: string;
+          p_paid_by: string;
+          p_split_type?: Database["public"]["Enums"]["split_type"];
+          p_splits?: Json;
+          p_to_user?: string;
+          p_type: Database["public"]["Enums"]["expense_type"];
+        };
+        Returns: {
+          amount: number;
+          created_at: string;
+          created_by: string;
+          currency: string;
+          description: string | null;
+          group_id: string;
+          id: string;
+          paid_at: string;
+          paid_by: string;
+          split_type: Database["public"]["Enums"]["split_type"] | null;
+          to_user: string | null;
+          type: Database["public"]["Enums"]["expense_type"];
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "expenses";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       create_group: {
         Args: {
           p_debit_mode?: Database["public"]["Enums"]["debit_mode"];
@@ -278,6 +379,26 @@ export type Database = {
         SetofOptions: {
           from: "*";
           to: "groups";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_invite: {
+        Args: { p_email?: string; p_group_id: string };
+        Returns: {
+          created_at: string;
+          created_by: string;
+          email: string | null;
+          expires_at: string;
+          group_id: string;
+          id: string;
+          invited_user_id: string | null;
+          token: string;
+          used_at: string | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "group_invites";
           isOneToOne: true;
           isSetofReturn: false;
         };
@@ -313,6 +434,40 @@ export type Database = {
         SetofOptions: {
           from: "*";
           to: "profiles";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      update_expense: {
+        Args: {
+          p_amount: number;
+          p_currency: string;
+          p_description: string;
+          p_id: string;
+          p_paid_at: string;
+          p_paid_by: string;
+          p_split_type?: Database["public"]["Enums"]["split_type"];
+          p_splits?: Json;
+          p_to_user?: string;
+        };
+        Returns: {
+          amount: number;
+          created_at: string;
+          created_by: string;
+          currency: string;
+          description: string | null;
+          group_id: string;
+          id: string;
+          paid_at: string;
+          paid_by: string;
+          split_type: Database["public"]["Enums"]["split_type"] | null;
+          to_user: string | null;
+          type: Database["public"]["Enums"]["expense_type"];
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "expenses";
           isOneToOne: true;
           isSetofReturn: false;
         };

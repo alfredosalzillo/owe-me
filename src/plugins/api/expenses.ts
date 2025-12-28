@@ -1,5 +1,4 @@
 import { StandardExpense } from "@/plugins/api/types";
-import { fetchMe } from "@/plugins/api/user";
 import supabase from "@/plugins/supabase/client";
 
 export const addExpense = async (
@@ -14,37 +13,25 @@ export const addExpense = async (
     splits?: { user: string; amount: number; percentage?: number }[];
   },
 ): Promise<{ id: string }> => {
-  const me = await fetchMe();
-  const nowIso = new Date().toISOString();
   const { data } = await supabase
-    .from("expenses")
-    .insert({
-      group_id: groupId,
-      type: "standard",
-      description: expense.description ?? null,
-      amount: expense.amount,
-      currency: expense.currency,
-      paid_by: expense.paidBy,
-      paid_at: expense.paidAt.toISOString(),
-      created_by: me.id,
-      created_at: nowIso,
-      updated_at: nowIso,
+    .rpc("add_expense", {
+      p_group_id: groupId,
+      p_type: "standard",
+      p_description: expense.description ?? "",
+      p_amount: expense.amount,
+      p_currency: expense.currency,
+      p_paid_by: expense.paidBy,
+      p_paid_at: expense.paidAt.toISOString(),
+      p_split_type: expense.splitType,
+      p_splits:
+        expense.splits?.map((s) => ({
+          user_id: s.user,
+          amount: s.amount,
+          percentage: s.percentage ?? null,
+        })) ?? [],
     })
-    .select("id")
-    .single()
     .throwOnError();
 
-  const expenseId = data.id as string;
-  // add splits
-  if (expense.splits?.length) {
-    const splitRows = expense.splits.map((s) => ({
-      expense_id: expenseId,
-      user_id: s.user,
-      amount: s.amount,
-      percentage: s.percentage ?? null,
-    }));
-    await supabase.from("expense_splits").insert(splitRows).throwOnError();
-  }
   return data;
 };
 
@@ -59,26 +46,19 @@ export const addPayment = async (
     paidAt: Date;
   },
 ): Promise<{ id: string }> => {
-  const me = await fetchMe();
-  const nowIso = new Date().toISOString();
   const { data } = await supabase
-    .from("expenses")
-    .insert({
-      group_id: groupId,
-      type: "payment",
-      description: payment.description ?? null,
-      amount: payment.amount,
-      currency: payment.currency,
-      paid_by: payment.paidBy,
-      to_user: payment.toUser,
-      paid_at: payment.paidAt.toISOString(),
-      created_by: me.id,
-      created_at: nowIso,
-      updated_at: nowIso,
+    .rpc("add_expense", {
+      p_group_id: groupId,
+      p_type: "payment",
+      p_description: payment.description ?? "",
+      p_amount: payment.amount,
+      p_currency: payment.currency,
+      p_paid_by: payment.paidBy,
+      p_paid_at: payment.paidAt.toISOString(),
+      p_to_user: payment.toUser,
     })
-    .select("id")
-    .single()
     .throwOnError();
+
   return data;
 };
 
@@ -94,40 +74,24 @@ export const updateExpense = async (
     splits: { user: string; amount: number; percentage?: number }[];
   }>,
 ): Promise<void> => {
-  // Update base row
-  if (Object.keys(expenseUpdate).length > 0) {
-    await supabase
-      .from("expenses")
-      .update({
-        type: "standard",
-        description: expenseUpdate.description,
-        amount: expenseUpdate.amount,
-        currency: expenseUpdate.currency,
-        paid_by: expenseUpdate.paidBy,
-        paid_at: expenseUpdate.paidAt?.toISOString(),
-        split_type: expenseUpdate.splitType,
-      })
-      .eq("id", expenseId)
-      .throwOnError();
-  }
-
-  // Replace splits when provided
-  if (expenseUpdate.splits) {
-    await supabase
-      .from("expense_splits")
-      .delete({ count: "exact" })
-      .eq("expense_id", expenseId)
-      .throwOnError();
-    if (expenseUpdate.splits.length > 0) {
-      const rows = expenseUpdate.splits.map((s) => ({
-        expense_id: expenseId,
-        user_id: s.user,
-        amount: s.amount,
-        percentage: s.percentage ?? null,
-      }));
-      await supabase.from("expense_splits").insert(rows).throwOnError();
-    }
-  }
+  await supabase
+    .rpc("update_expense", {
+      p_id: expenseId,
+      p_description: expenseUpdate.description ?? "",
+      p_amount: expenseUpdate.amount!,
+      p_currency: expenseUpdate.currency!,
+      p_paid_by: expenseUpdate.paidBy!,
+      p_paid_at: expenseUpdate.paidAt?.toISOString()!,
+      p_split_type: expenseUpdate.splitType!,
+      p_splits: expenseUpdate.splits
+        ? expenseUpdate.splits.map((s) => ({
+            user_id: s.user,
+            amount: s.amount,
+            percentage: s.percentage ?? null,
+          }))
+        : null,
+    })
+    .throwOnError();
 };
 
 export const updatePayment = async (
@@ -141,20 +105,16 @@ export const updatePayment = async (
     paidAt: Date;
   }>,
 ): Promise<void> => {
-  if (Object.keys(paymentUpdate).length > 0) {
-    await supabase
-      .from("expenses")
-      .update({
-        type: "payment",
-        description: paymentUpdate.description,
-        amount: paymentUpdate.amount,
-        currency: paymentUpdate.currency,
-        paid_by: paymentUpdate.paidBy,
-        paid_at: paymentUpdate.paidAt?.toISOString(),
-        to_user: paymentUpdate.toUser,
-        split_type: null,
-      })
-      .eq("id", paymentId)
-      .throwOnError();
-  }
+  await supabase
+    .rpc("update_expense", {
+      p_id: paymentId,
+      p_description: paymentUpdate.description ?? "",
+      p_amount: paymentUpdate.amount!,
+      p_currency: paymentUpdate.currency!,
+      p_paid_by: paymentUpdate.paidBy!,
+      p_paid_at: paymentUpdate.paidAt?.toISOString()!,
+      p_to_user: paymentUpdate.toUser!,
+      p_split_type: undefined,
+    })
+    .throwOnError();
 };

@@ -551,6 +551,24 @@ type Group implements Node {
     orderBy: [ExpenseOrderBy!]
   ): ExpenseConnection
   id: UUID!
+  invites(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupInviteFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupInviteOrderBy!]
+  ): GroupInviteConnection
   members(
     """Query values in the collection after the provided cursor"""
     after: Cursor
@@ -627,6 +645,112 @@ type GroupInsertResponse {
   affectedCount: Int!
   """Array of records impacted by the mutation"""
   records: [Group!]!
+}
+
+type GroupInvite implements Node {
+  createdAt: Datetime!
+  createdBy: Profile
+  email: String
+  expiresAt: Datetime!
+  group: Group
+  groupId: UUID!
+  id: UUID!
+  invitedUser: Profile
+  invitedUserId: UUID
+  """Globally Unique Record Identifier"""
+  nodeId: ID!
+  token: UUID!
+  usedAt: Datetime
+}
+
+type GroupInviteConnection {
+  edges: [GroupInviteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GroupInviteDeleteResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [GroupInvite!]!
+}
+
+type GroupInviteEdge {
+  cursor: String!
+  node: GroupInvite!
+}
+
+input GroupInviteFilter {
+  """
+  Returns true only if all its inner filters are true, otherwise returns false
+  """
+  and: [GroupInviteFilter!]
+  createdAt: DatetimeFilter
+  createdBy: UUIDFilter
+  email: StringFilter
+  expiresAt: DatetimeFilter
+  groupId: UUIDFilter
+  id: UUIDFilter
+  invitedUserId: UUIDFilter
+  nodeId: IDFilter
+  """Negates a filter"""
+  not: GroupInviteFilter
+  """
+  Returns true if at least one of its inner filters is true, otherwise returns false
+  """
+  or: [GroupInviteFilter!]
+  token: UUIDFilter
+  usedAt: DatetimeFilter
+}
+
+input GroupInviteInsertInput {
+  createdAt: Datetime
+  createdBy: UUID
+  email: String
+  expiresAt: Datetime
+  groupId: UUID
+  id: UUID
+  invitedUserId: UUID
+  token: UUID
+  usedAt: Datetime
+}
+
+type GroupInviteInsertResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [GroupInvite!]!
+}
+
+input GroupInviteOrderBy {
+  createdAt: OrderByDirection
+  createdBy: OrderByDirection
+  email: OrderByDirection
+  expiresAt: OrderByDirection
+  groupId: OrderByDirection
+  id: OrderByDirection
+  invitedUserId: OrderByDirection
+  token: OrderByDirection
+  usedAt: OrderByDirection
+}
+
+input GroupInviteUpdateInput {
+  createdAt: Datetime
+  createdBy: UUID
+  email: String
+  expiresAt: Datetime
+  groupId: UUID
+  id: UUID
+  invitedUserId: UUID
+  token: UUID
+  usedAt: Datetime
+}
+
+type GroupInviteUpdateResponse {
+  """Count of the records impacted by the mutation"""
+  affectedCount: Int!
+  """Array of records impacted by the mutation"""
+  records: [GroupInvite!]!
 }
 
 type GroupMember implements Node {
@@ -774,6 +898,8 @@ scalar JSON
 
 """The root type for creating and mutating data"""
 type Mutation {
+  acceptInvite(inviteToken: UUID!): Boolean
+  createInvite(pEmail: String, pGroupId: UUID!): GroupInvite
   """Deletes zero or more records from the `Debit` collection"""
   deleteFromDebitCollection(
     """
@@ -810,6 +936,15 @@ type Mutation {
     """Restricts the mutation's impact to records matching the criteria"""
     filter: GroupFilter
   ): GroupDeleteResponse!
+  """Deletes zero or more records from the `GroupInvite` collection"""
+  deleteFromGroupInviteCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: GroupInviteFilter
+  ): GroupInviteDeleteResponse!
   """Deletes zero or more records from the `GroupMember` collection"""
   deleteFromGroupMemberCollection(
     """
@@ -836,6 +971,8 @@ type Mutation {
   insertIntoExpenseSplitCollection(objects: [ExpenseSplitInsertInput!]!): ExpenseSplitInsertResponse
   """Adds one or more `Group` records to the collection"""
   insertIntoGroupCollection(objects: [GroupInsertInput!]!): GroupInsertResponse
+  """Adds one or more `GroupInvite` records to the collection"""
+  insertIntoGroupInviteCollection(objects: [GroupInviteInsertInput!]!): GroupInviteInsertResponse
   """Adds one or more `GroupMember` records to the collection"""
   insertIntoGroupMemberCollection(objects: [GroupMemberInsertInput!]!): GroupMemberInsertResponse
   """Adds one or more `Profile` records to the collection"""
@@ -892,6 +1029,19 @@ type Mutation {
     """
     set: GroupUpdateInput!
   ): GroupUpdateResponse!
+  """Updates zero or more records in the `GroupInvite` collection"""
+  updateGroupInviteCollection(
+    """
+    The maximum number of records in the collection permitted to be affected
+    """
+    atMost: Int! = 1
+    """Restricts the mutation's impact to records matching the criteria"""
+    filter: GroupInviteFilter
+    """
+    Fields that are set will be updated for all records matching the `filter`
+    """
+    set: GroupInviteUpdateInput!
+  ): GroupInviteUpdateResponse!
   """Updates zero or more records in the `GroupMember` collection"""
   updateGroupMemberCollection(
     """
@@ -1085,6 +1235,42 @@ type Profile implements Node {
     orderBy: [GroupMemberOrderBy!]
   ): GroupMemberConnection
   id: UUID!
+  invitesCreated(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupInviteFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupInviteOrderBy!]
+  ): GroupInviteConnection
+  invitesReceived(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupInviteFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupInviteOrderBy!]
+  ): GroupInviteConnection
   isMe: Boolean
   name: String
   """Globally Unique Record Identifier"""
@@ -1258,6 +1444,25 @@ type Query {
     """Sort order to apply to the collection"""
     orderBy: [GroupOrderBy!]
   ): GroupConnection
+  """A pagable collection of type `GroupInvite`"""
+  groupInviteCollection(
+    """Query values in the collection after the provided cursor"""
+    after: Cursor
+    """Query values in the collection before the provided cursor"""
+    before: Cursor
+    """Filters to apply to the results set when querying from the collection"""
+    filter: GroupInviteFilter
+    """Query the first `n` records in the collection"""
+    first: Int
+    """Query the last `n` records in the collection"""
+    last: Int
+    """
+    Skip n values from the after cursor. Alternative to cursor pagination. Backward pagination not supported.
+    """
+    offset: Int
+    """Sort order to apply to the collection"""
+    orderBy: [GroupInviteOrderBy!]
+  ): GroupInviteConnection
   """A pagable collection of type `GroupMember`"""
   groupMemberCollection(
     """Query values in the collection after the provided cursor"""

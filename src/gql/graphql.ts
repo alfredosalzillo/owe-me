@@ -504,6 +504,7 @@ export type Group = Node & {
   description: Maybe<Scalars['String']['output']>;
   expenses: Maybe<ExpenseConnection>;
   id: Scalars['UUID']['output'];
+  invites: Maybe<GroupInviteConnection>;
   members: Maybe<GroupMemberConnection>;
   name: Scalars['String']['output'];
   /** Globally Unique Record Identifier */
@@ -530,6 +531,17 @@ export type GroupExpensesArgs = {
   last: InputMaybe<Scalars['Int']['input']>;
   offset: InputMaybe<Scalars['Int']['input']>;
   orderBy: InputMaybe<Array<ExpenseOrderBy>>;
+};
+
+
+export type GroupInvitesArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<GroupInviteFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<GroupInviteOrderBy>>;
 };
 
 
@@ -596,6 +608,114 @@ export type GroupInsertResponse = {
   affectedCount: Scalars['Int']['output'];
   /** Array of records impacted by the mutation */
   records: Array<Group>;
+};
+
+export type GroupInvite = Node & {
+  __typename?: 'GroupInvite';
+  createdAt: Scalars['Datetime']['output'];
+  createdBy: Maybe<Profile>;
+  email: Maybe<Scalars['String']['output']>;
+  expiresAt: Scalars['Datetime']['output'];
+  group: Maybe<Group>;
+  groupId: Scalars['UUID']['output'];
+  id: Scalars['UUID']['output'];
+  invitedUser: Maybe<Profile>;
+  invitedUserId: Maybe<Scalars['UUID']['output']>;
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID']['output'];
+  token: Scalars['UUID']['output'];
+  usedAt: Maybe<Scalars['Datetime']['output']>;
+};
+
+export type GroupInviteConnection = {
+  __typename?: 'GroupInviteConnection';
+  edges: Array<GroupInviteEdge>;
+  pageInfo: PageInfo;
+};
+
+export type GroupInviteDeleteResponse = {
+  __typename?: 'GroupInviteDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int']['output'];
+  /** Array of records impacted by the mutation */
+  records: Array<GroupInvite>;
+};
+
+export type GroupInviteEdge = {
+  __typename?: 'GroupInviteEdge';
+  cursor: Scalars['String']['output'];
+  node: GroupInvite;
+};
+
+export type GroupInviteFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and: InputMaybe<Array<GroupInviteFilter>>;
+  createdAt: InputMaybe<DatetimeFilter>;
+  createdBy: InputMaybe<UuidFilter>;
+  email: InputMaybe<StringFilter>;
+  expiresAt: InputMaybe<DatetimeFilter>;
+  groupId: InputMaybe<UuidFilter>;
+  id: InputMaybe<UuidFilter>;
+  invitedUserId: InputMaybe<UuidFilter>;
+  nodeId: InputMaybe<IdFilter>;
+  /** Negates a filter */
+  not: InputMaybe<GroupInviteFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or: InputMaybe<Array<GroupInviteFilter>>;
+  token: InputMaybe<UuidFilter>;
+  usedAt: InputMaybe<DatetimeFilter>;
+};
+
+export type GroupInviteInsertInput = {
+  createdAt: InputMaybe<Scalars['Datetime']['input']>;
+  createdBy: InputMaybe<Scalars['UUID']['input']>;
+  email: InputMaybe<Scalars['String']['input']>;
+  expiresAt: InputMaybe<Scalars['Datetime']['input']>;
+  groupId: InputMaybe<Scalars['UUID']['input']>;
+  id: InputMaybe<Scalars['UUID']['input']>;
+  invitedUserId: InputMaybe<Scalars['UUID']['input']>;
+  token: InputMaybe<Scalars['UUID']['input']>;
+  usedAt: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+export type GroupInviteInsertResponse = {
+  __typename?: 'GroupInviteInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int']['output'];
+  /** Array of records impacted by the mutation */
+  records: Array<GroupInvite>;
+};
+
+export type GroupInviteOrderBy = {
+  createdAt: InputMaybe<OrderByDirection>;
+  createdBy: InputMaybe<OrderByDirection>;
+  email: InputMaybe<OrderByDirection>;
+  expiresAt: InputMaybe<OrderByDirection>;
+  groupId: InputMaybe<OrderByDirection>;
+  id: InputMaybe<OrderByDirection>;
+  invitedUserId: InputMaybe<OrderByDirection>;
+  token: InputMaybe<OrderByDirection>;
+  usedAt: InputMaybe<OrderByDirection>;
+};
+
+export type GroupInviteUpdateInput = {
+  createdAt: InputMaybe<Scalars['Datetime']['input']>;
+  createdBy: InputMaybe<Scalars['UUID']['input']>;
+  email: InputMaybe<Scalars['String']['input']>;
+  expiresAt: InputMaybe<Scalars['Datetime']['input']>;
+  groupId: InputMaybe<Scalars['UUID']['input']>;
+  id: InputMaybe<Scalars['UUID']['input']>;
+  invitedUserId: InputMaybe<Scalars['UUID']['input']>;
+  token: InputMaybe<Scalars['UUID']['input']>;
+  usedAt: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+export type GroupInviteUpdateResponse = {
+  __typename?: 'GroupInviteUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int']['output'];
+  /** Array of records impacted by the mutation */
+  records: Array<GroupInvite>;
 };
 
 export type GroupMember = Node & {
@@ -738,6 +858,8 @@ export type IntListFilter = {
 /** The root type for creating and mutating data */
 export type Mutation = {
   __typename?: 'Mutation';
+  acceptInvite: Maybe<Scalars['Boolean']['output']>;
+  createInvite: Maybe<GroupInvite>;
   /** Deletes zero or more records from the `Debit` collection */
   deleteFromDebitCollection: DebitDeleteResponse;
   /** Deletes zero or more records from the `Expense` collection */
@@ -746,6 +868,8 @@ export type Mutation = {
   deleteFromExpenseSplitCollection: ExpenseSplitDeleteResponse;
   /** Deletes zero or more records from the `Group` collection */
   deleteFromGroupCollection: GroupDeleteResponse;
+  /** Deletes zero or more records from the `GroupInvite` collection */
+  deleteFromGroupInviteCollection: GroupInviteDeleteResponse;
   /** Deletes zero or more records from the `GroupMember` collection */
   deleteFromGroupMemberCollection: GroupMemberDeleteResponse;
   /** Deletes zero or more records from the `Profile` collection */
@@ -758,6 +882,8 @@ export type Mutation = {
   insertIntoExpenseSplitCollection: Maybe<ExpenseSplitInsertResponse>;
   /** Adds one or more `Group` records to the collection */
   insertIntoGroupCollection: Maybe<GroupInsertResponse>;
+  /** Adds one or more `GroupInvite` records to the collection */
+  insertIntoGroupInviteCollection: Maybe<GroupInviteInsertResponse>;
   /** Adds one or more `GroupMember` records to the collection */
   insertIntoGroupMemberCollection: Maybe<GroupMemberInsertResponse>;
   /** Adds one or more `Profile` records to the collection */
@@ -770,10 +896,25 @@ export type Mutation = {
   updateExpenseSplitCollection: ExpenseSplitUpdateResponse;
   /** Updates zero or more records in the `Group` collection */
   updateGroupCollection: GroupUpdateResponse;
+  /** Updates zero or more records in the `GroupInvite` collection */
+  updateGroupInviteCollection: GroupInviteUpdateResponse;
   /** Updates zero or more records in the `GroupMember` collection */
   updateGroupMemberCollection: GroupMemberUpdateResponse;
   /** Updates zero or more records in the `Profile` collection */
   updateProfileCollection: ProfileUpdateResponse;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationAcceptInviteArgs = {
+  inviteToken: Scalars['UUID']['input'];
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationCreateInviteArgs = {
+  pEmail: InputMaybe<Scalars['String']['input']>;
+  pGroupId: Scalars['UUID']['input'];
 };
 
 
@@ -802,6 +943,13 @@ export type MutationDeleteFromExpenseSplitCollectionArgs = {
 export type MutationDeleteFromGroupCollectionArgs = {
   atMost?: Scalars['Int']['input'];
   filter: InputMaybe<GroupFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromGroupInviteCollectionArgs = {
+  atMost?: Scalars['Int']['input'];
+  filter: InputMaybe<GroupInviteFilter>;
 };
 
 
@@ -840,6 +988,12 @@ export type MutationInsertIntoExpenseSplitCollectionArgs = {
 /** The root type for creating and mutating data */
 export type MutationInsertIntoGroupCollectionArgs = {
   objects: Array<GroupInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoGroupInviteCollectionArgs = {
+  objects: Array<GroupInviteInsertInput>;
 };
 
 
@@ -884,6 +1038,14 @@ export type MutationUpdateGroupCollectionArgs = {
   atMost?: Scalars['Int']['input'];
   filter: InputMaybe<GroupFilter>;
   set: GroupUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateGroupInviteCollectionArgs = {
+  atMost?: Scalars['Int']['input'];
+  filter: InputMaybe<GroupInviteFilter>;
+  set: GroupInviteUpdateInput;
 };
 
 
@@ -945,6 +1107,8 @@ export type Profile = Node & {
   groupsCreated: Maybe<GroupConnection>;
   groupsParticipating: Maybe<GroupMemberConnection>;
   id: Scalars['UUID']['output'];
+  invitesCreated: Maybe<GroupInviteConnection>;
+  invitesReceived: Maybe<GroupInviteConnection>;
   isMe: Maybe<Scalars['Boolean']['output']>;
   name: Maybe<Scalars['String']['output']>;
   /** Globally Unique Record Identifier */
@@ -1027,6 +1191,28 @@ export type ProfileGroupsParticipatingArgs = {
   last: InputMaybe<Scalars['Int']['input']>;
   offset: InputMaybe<Scalars['Int']['input']>;
   orderBy: InputMaybe<Array<GroupMemberOrderBy>>;
+};
+
+
+export type ProfileInvitesCreatedArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<GroupInviteFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<GroupInviteOrderBy>>;
+};
+
+
+export type ProfileInvitesReceivedArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<GroupInviteFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<GroupInviteOrderBy>>;
 };
 
 
@@ -1123,6 +1309,8 @@ export type Query = {
   group: Maybe<Group>;
   /** A pagable collection of type `Group` */
   groupCollection: Maybe<GroupConnection>;
+  /** A pagable collection of type `GroupInvite` */
+  groupInviteCollection: Maybe<GroupInviteConnection>;
   /** A pagable collection of type `GroupMember` */
   groupMemberCollection: Maybe<GroupMemberConnection>;
   isGroupAdmin: Maybe<Scalars['Boolean']['output']>;
@@ -1186,6 +1374,18 @@ export type QueryGroupCollectionArgs = {
   last: InputMaybe<Scalars['Int']['input']>;
   offset: InputMaybe<Scalars['Int']['input']>;
   orderBy: InputMaybe<Array<GroupOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryGroupInviteCollectionArgs = {
+  after: InputMaybe<Scalars['Cursor']['input']>;
+  before: InputMaybe<Scalars['Cursor']['input']>;
+  filter: InputMaybe<GroupInviteFilter>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  orderBy: InputMaybe<Array<GroupInviteOrderBy>>;
 };
 
 
@@ -1356,6 +1556,13 @@ export type GroupListFragmentFragment = { __typename: 'Query', groups: { __typen
 
 export type GroupCurrencySettingsFragmentFragment = { __typename: 'Group', id: string, defaultCurrency: string } & { ' $fragmentName'?: 'GroupCurrencySettingsFragmentFragment' };
 
+export type GetInviteQueryVariables = Exact<{
+  token: Scalars['UUID']['input'];
+}>;
+
+
+export type GetInviteQuery = { __typename: 'Query', groupInviteCollection: { __typename: 'GroupInviteConnection', edges: Array<{ __typename: 'GroupInviteEdge', node: { __typename: 'GroupInvite', id: string, token: string, groupId: string, email: string | null, group: { __typename: 'Group', name: string } | null } }> } | null };
+
 export type GroupMembersFragmentFragment = { __typename: 'Group', id: string, members: { __typename: 'GroupMemberConnection', edges: Array<{ __typename: 'GroupMemberEdge', node: { __typename: 'GroupMember', user: { __typename: 'Profile', id: string, name: string | null, avatarUrl: string | null, isMe: boolean | null } | null } }> } | null } & { ' $fragmentName'?: 'GroupMembersFragmentFragment' };
 
 export const ExpenseItemFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ExpenseItemFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Expense"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"splitType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"toUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isMe"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paidBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isMe"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isMe"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paidAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"splits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isMe"}}]}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"percentage"}}]}}]}}]}}]}}]} as unknown as DocumentNode<ExpenseItemFragmentFragment, unknown>;
@@ -1368,3 +1575,4 @@ export const GroupPageDocument = {"kind":"Document","definitions":[{"kind":"Oper
 export const HomePageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HomePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"GroupListFragment"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupListFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Query"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","alias":{"kind":"Name","value":"groups"},"name":{"kind":"Name","value":"groupCollection"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]}}]} as unknown as DocumentNode<HomePageQuery, HomePageQueryVariables>;
 export const SettingsPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SettingsPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}}]}}]}}]} as unknown as DocumentNode<SettingsPageQuery, SettingsPageQueryVariables>;
 export const UpdateProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateProfile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"avatarUrl"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"updateProfileCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"avatarUrl"},"value":{"kind":"Variable","name":{"kind":"Name","value":"avatarUrl"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateProfileMutation, UpdateProfileMutationVariables>;
+export const GetInviteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetInvite"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"groupInviteCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"token"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"groupId"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetInviteQuery, GetInviteQueryVariables>;

@@ -1,9 +1,11 @@
 import { useSuspenseFragment } from "@apollo/client/react";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {
   Avatar,
   AvatarGroup,
   Box,
   Divider,
+  IconButton,
   List,
   ListItem,
   ListItemText,
@@ -15,6 +17,7 @@ import { FC, useMemo } from "react";
 import AddExpenseButton from "@/components/AddExpenseButton";
 import ExpenseItem from "@/components/ExpenseItem";
 import { graphql } from "@/gql";
+import { useInviteMember } from "@/plugins/api/invites";
 import useGroupMembers from "@/plugins/api/useGroupMembers";
 import groupBy from "@/plugins/array/groupBy";
 import Price from "@/plugins/price-format/Price";
@@ -101,6 +104,8 @@ type GroupMembersProps = {
 };
 const GroupMembers: FC<GroupMembersProps> = ({ groupId }) => {
   const members = useGroupMembers(groupId);
+  const inviteMember = useInviteMember();
+
   return (
     <Container
       sx={{
@@ -121,6 +126,13 @@ const GroupMembers: FC<GroupMembersProps> = ({ groupId }) => {
           </Avatar>
         ))}
       </AvatarGroup>
+      <IconButton
+        color="primary"
+        onClick={() => inviteMember(groupId)}
+        aria-label="invite member"
+      >
+        <PersonAddIcon />
+      </IconButton>
     </Container>
   );
 };

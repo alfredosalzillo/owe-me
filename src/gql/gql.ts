@@ -23,6 +23,7 @@ type Documents = {
     "\n    fragment GroupHeaderFragment on Group {\n        id\n        name\n        description\n        defaultCurrency\n        debitMode\n    }\n": typeof types.GroupHeaderFragmentFragmentDoc,
     "\n    fragment GroupListFragment on Query {\n        groups: groupCollection {\n            edges {\n                node {\n                    id\n                    name\n                    description\n                }\n            }\n        }\n    }\n": typeof types.GroupListFragmentFragmentDoc,
     "\n    fragment GroupCurrencySettingsFragment on Group {\n        id\n        defaultCurrency\n    }\n": typeof types.GroupCurrencySettingsFragmentFragmentDoc,
+    "\n    query GetInvite($token: UUID!) {\n        groupInviteCollection(filter: { token: { eq: $token } }) {\n            edges {\n                node {\n                    id\n                    token\n                    groupId\n                    email\n                    group {\n                        name\n                    }\n                }\n            }\n        }\n    }\n": typeof types.GetInviteDocument,
     "\n    fragment GroupMembersFragment on Group {\n        id\n        members {\n            edges {\n                node {\n                    user {\n                        id\n                        name\n                        avatarUrl\n                        isMe\n                    }\n                }\n            }\n        }\n    }\n": typeof types.GroupMembersFragmentFragmentDoc,
 };
 const documents: Documents = {
@@ -35,6 +36,7 @@ const documents: Documents = {
     "\n    fragment GroupHeaderFragment on Group {\n        id\n        name\n        description\n        defaultCurrency\n        debitMode\n    }\n": types.GroupHeaderFragmentFragmentDoc,
     "\n    fragment GroupListFragment on Query {\n        groups: groupCollection {\n            edges {\n                node {\n                    id\n                    name\n                    description\n                }\n            }\n        }\n    }\n": types.GroupListFragmentFragmentDoc,
     "\n    fragment GroupCurrencySettingsFragment on Group {\n        id\n        defaultCurrency\n    }\n": types.GroupCurrencySettingsFragmentFragmentDoc,
+    "\n    query GetInvite($token: UUID!) {\n        groupInviteCollection(filter: { token: { eq: $token } }) {\n            edges {\n                node {\n                    id\n                    token\n                    groupId\n                    email\n                    group {\n                        name\n                    }\n                }\n            }\n        }\n    }\n": types.GetInviteDocument,
     "\n    fragment GroupMembersFragment on Group {\n        id\n        members {\n            edges {\n                node {\n                    user {\n                        id\n                        name\n                        avatarUrl\n                        isMe\n                    }\n                }\n            }\n        }\n    }\n": types.GroupMembersFragmentFragmentDoc,
 };
 
@@ -88,6 +90,10 @@ export function graphql(source: "\n    fragment GroupListFragment on Query {\n  
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n    fragment GroupCurrencySettingsFragment on Group {\n        id\n        defaultCurrency\n    }\n"): (typeof documents)["\n    fragment GroupCurrencySettingsFragment on Group {\n        id\n        defaultCurrency\n    }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    query GetInvite($token: UUID!) {\n        groupInviteCollection(filter: { token: { eq: $token } }) {\n            edges {\n                node {\n                    id\n                    token\n                    groupId\n                    email\n                    group {\n                        name\n                    }\n                }\n            }\n        }\n    }\n"): (typeof documents)["\n    query GetInvite($token: UUID!) {\n        groupInviteCollection(filter: { token: { eq: $token } }) {\n            edges {\n                node {\n                    id\n                    token\n                    groupId\n                    email\n                    group {\n                        name\n                    }\n                }\n            }\n        }\n    }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
