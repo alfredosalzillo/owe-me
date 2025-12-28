@@ -25,6 +25,7 @@ import GroupList from "@/components/GroupList";
 import config from "@/config";
 import { graphql } from "@/gql";
 import useCreateGroup from "@/plugins/api/useCreateGroup";
+import { route } from "@/plugins/app-router-helpers";
 
 const HomeDocument = graphql(`
     query HomePage {
@@ -106,7 +107,7 @@ const Header: FC<HeaderProps> = ({ onCreateGroup }) => {
             <ListItemButton
               onClick={() => {
                 setDrawerOpen(false);
-                navigate("/settings");
+                navigate(route("/(private)/settings", {}));
               }}
             >
               <ListItemIcon>
@@ -119,7 +120,7 @@ const Header: FC<HeaderProps> = ({ onCreateGroup }) => {
             <ListItemButton
               onClick={() => {
                 setDrawerOpen(false);
-                navigate("/auth/logout");
+                navigate(route("/auth/logout", {}));
               }}
             >
               <ListItemIcon>
@@ -148,7 +149,7 @@ const Home = () => {
       <Header
         onCreateGroup={async (groupId) => {
           await refetch();
-          navigate(`/groups/${groupId}`);
+          navigate(route("/(private)/groups/[id]", { id: groupId }));
         }}
       />
       <Box
@@ -176,7 +177,7 @@ const Home = () => {
             <GroupList
               onCreateGroup={async (groupId) => {
                 await refetch();
-                navigate(`/groups/${groupId}`);
+                navigate(route("/(private)/groups/[id]", { id: groupId }));
               }}
             />
           </Suspense>

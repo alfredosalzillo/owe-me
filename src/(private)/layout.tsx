@@ -1,6 +1,7 @@
 import { Box, CircularProgress } from "@mui/material";
 import React, { FC, ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router";
+import { route } from "@/plugins/app-router-helpers";
 import supabase from "@/plugins/supabase/client";
 
 const Authorized: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,7 +47,7 @@ const Authorized: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (!authenticated) {
     return (
       <Navigate
-        to={`/login?returnUrl=${encodeURIComponent(window.location.href)}`}
+        to={`${route("/login", {})}?returnUrl=${encodeURIComponent(window.location.href)}`}
         replace
       />
     );

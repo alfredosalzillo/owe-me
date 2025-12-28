@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import React, { useMemo } from "react";
 import { isRouteErrorResponse, Link, useRouteError } from "react-router";
+import { route } from "@/plugins/app-router-helpers";
 import theme from "@/theme";
 
 const RootError: React.FC = () => {
@@ -56,7 +57,12 @@ const RootError: React.FC = () => {
             spacing={2}
             justifyContent="center"
           >
-            <Button variant="contained" color="primary" component={Link} to="/">
+            <Button
+              variant="contained"
+              color="primary"
+              component={Link}
+              to={route("/", {})}
+            >
               Go to Home
             </Button>
             <Button

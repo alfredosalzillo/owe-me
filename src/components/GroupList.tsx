@@ -14,6 +14,7 @@ import { FC } from "react";
 import { Link, useNavigate } from "react-router";
 import { graphql } from "@/gql";
 import useCreateGroup from "@/plugins/api/useCreateGroup";
+import { route } from "@/plugins/app-router-helpers";
 
 const GroupListFragment = graphql(`
     fragment GroupListFragment on Query {
@@ -48,7 +49,7 @@ const GroupList: FC<GroupListProps> = ({ onCreateGroup }) => {
       return;
     }
     onCreateGroup?.(group.id);
-    navigate(`/groups/${group.id}`);
+    navigate(route("/(private)/groups/[id]", { id: group.id }));
   };
 
   const groups = data.groups?.edges.map((edge) => edge.node) ?? [];
@@ -86,7 +87,10 @@ const GroupList: FC<GroupListProps> = ({ onCreateGroup }) => {
     <List disablePadding>
       {groups.map((group) => (
         <ListItem key={group.id} disablePadding>
-          <ListItemButton component={Link} to={`/groups/${group.id}`}>
+          <ListItemButton
+            component={Link}
+            to={route("/(private)/groups/[id]", { id: group.id })}
+          >
             <ListItemAvatar>
               <Avatar>{group.name[0]}</Avatar>
             </ListItemAvatar>

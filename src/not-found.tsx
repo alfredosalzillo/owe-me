@@ -1,6 +1,7 @@
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import React from "react";
 import { Link, useNavigate } from "react-router";
+import { route } from "@/plugins/app-router-helpers";
 
 const RootNotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +39,12 @@ const RootNotFound: React.FC = () => {
           spacing={2}
           justifyContent="center"
         >
-          <Button variant="contained" color="primary" component={Link} to="/">
+          <Button
+            variant="contained"
+            color="primary"
+            component={Link}
+            to={route("/", {})}
+          >
             Go to Home
           </Button>
           <Button

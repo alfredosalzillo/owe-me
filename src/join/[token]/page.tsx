@@ -3,6 +3,7 @@ import { useNotifications } from "@toolpad/core";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { acceptInvite, useInvite } from "@/plugins/api/invites";
+import { route } from "@/plugins/app-router-helpers";
 import supabase from "@/plugins/supabase/client";
 
 const JoinGroupPage = () => {
@@ -32,14 +33,16 @@ const JoinGroupPage = () => {
         // Redirect to login but save the invite token to join after login
         // For now, let's just use the current origin
         navigate(
-          `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`,
+          `${route("/login", {})}?returnUrl=${encodeURIComponent(window.location.pathname)}`,
         );
         return;
       }
 
       const success = await acceptInvite(token!);
       if (success) {
-        navigate(`/groups/${invite.groupId}`, { replace: true });
+        navigate(route("/(private)/groups/[id]", { id: invite.groupId }), {
+          replace: true,
+        });
         return;
       }
       notifications.show(
