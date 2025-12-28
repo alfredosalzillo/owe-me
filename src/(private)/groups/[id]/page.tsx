@@ -21,9 +21,13 @@ const GroupPage = () => {
   if (!id) {
     throw new Error("Group ID is required");
   }
-  const { refetch } = useSuspenseQuery(GroupPageDocument, {
+  const { data, refetch } = useSuspenseQuery(GroupPageDocument, {
     variables: { id },
   });
+
+  if (!data.group) {
+    throw new Error("Group not found");
+  }
 
   return (
     <Box
