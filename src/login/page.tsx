@@ -22,7 +22,10 @@ const Page = () => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${config.siteUrl}/auth/confirm`,
+        emailRedirectTo: decodeURIComponent(
+          new URL(window.location.href).searchParams.get("returnUrl") ??
+            `${config.siteUrl}`,
+        ),
       },
     });
     if (error) {

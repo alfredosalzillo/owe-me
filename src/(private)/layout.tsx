@@ -33,7 +33,12 @@ const Authorized: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return null;
   }
   if (!authenticated) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to={`/login?returnUrl=${encodeURIComponent(window.location.href)}`}
+        replace
+      />
+    );
   }
   return <>{children}</>;
 };
