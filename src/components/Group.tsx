@@ -149,16 +149,6 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
   return (
     <Container disableGutters>
       <Container sx={{ pt: 2, pb: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          <Typography variant="h4">{data.name}</Typography>
-        </Box>
         <Typography variant="body1" component="p" gutterBottom>
           {data.description}
         </Typography>
@@ -207,6 +197,9 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
       <Divider />
       <GroupMembers groupId={id} />
       <Divider />
+      <Container sx={{ pt: 2 }}>
+        <Typography variant="h5">Activities</Typography>
+      </Container>
       {groupedExpenses.map(({ paidAt, expenses }) => (
         <List key={paidAt.toISOString()}>
           <ListItem>

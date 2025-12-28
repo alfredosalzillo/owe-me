@@ -1,6 +1,13 @@
 import { useSuspenseFragment } from "@apollo/client/react";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { AppBar, Avatar, Box, IconButton, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import Container from "@mui/material/Container";
 import { FC } from "react";
 import BackIconButton from "@/components/BackIconButton";
@@ -51,11 +58,13 @@ const GroupHeader: FC<GroupHeaderProps> = ({ id, onEdit }) => {
           color="inherit"
           aria-label="back"
         />
-        <Box sx={{ flexGrow: 1 }}>
-          <Container disableGutters>
-            <Avatar>{group.name[0]}</Avatar>
-          </Container>
-        </Box>
+        <Container
+          disableGutters
+          sx={{ display: "flex", gap: 2, flexGrow: 1, alignItems: "center" }}
+        >
+          <Avatar sx={{ width: 32, height: 32 }}>{group.name[0]}</Avatar>
+          <Typography variant="h5">{group.name}</Typography>
+        </Container>
         <IconButton
           size="large"
           aria-label="settings"
