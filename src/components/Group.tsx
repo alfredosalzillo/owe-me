@@ -3,7 +3,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {
   Avatar,
   AvatarGroup,
-  Box,
+  Button,
   Divider,
   IconButton,
   List,
@@ -13,10 +13,13 @@ import {
   Typography,
 } from "@mui/material";
 import Container from "@mui/material/Container";
+import { useDialogs, useNotifications } from "@toolpad/core";
 import { FC, useMemo } from "react";
 import AddExpenseButton from "@/components/AddExpenseButton";
 import ExpenseItem from "@/components/ExpenseItem";
+import PaymentDialog from "@/components/PaymentDialog";
 import { graphql } from "@/gql";
+import { addPayment } from "@/plugins/api/expenses";
 import { useInviteMember } from "@/plugins/api/invites";
 import useGroupMembers from "@/plugins/api/useGroupMembers";
 import groupBy from "@/plugins/array/groupBy";
@@ -143,8 +146,37 @@ export type GroupProps = {
 };
 const Group: FC<GroupProps> = ({ id, onUpdate }) => {
   const { data, debits, groupedExpenses } = useGroup(id);
+  const dialogs = useDialogs();
+  const notifications = useNotifications();
   const refreshData = () => {
     onUpdate?.();
+  };
+
+  const handleAddPayment = async () => {
+    const data = await dialogs.open(PaymentDialog, {
+      groupId: id,
+      title: "Record Payment",
+    });
+
+    if (data) {
+      try {
+        await addPayment(id, {
+          description: data.description,
+          amount: data.amount,
+          currency: data.currency,
+          paidBy: data.paidBy,
+          paidAt: new Date(data.paidAt),
+          toUser: data.toUser!,
+        });
+        refreshData();
+      } catch (error) {
+        // biome-ignore lint/suspicious/noConsole: allowed to log error of api
+        console.error("Failed to add payment:", error);
+        notifications.show(`Failed to add payment`, {
+          severity: "error",
+        });
+      }
+    }
   };
   return (
     <Container disableGutters>
@@ -193,6 +225,14 @@ const Group: FC<GroupProps> = ({ id, onUpdate }) => {
             </Typography>
           );
         })}
+        <Button
+          fullWidth
+          variant="outlined"
+          sx={{ mt: 2 }}
+          onClick={handleAddPayment}
+        >
+          Add payment
+        </Button>
       </Container>
       <Divider />
       <GroupMembers groupId={id} />

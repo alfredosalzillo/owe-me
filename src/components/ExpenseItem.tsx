@@ -12,6 +12,7 @@ import {
 import { useDialogs } from "@toolpad/core/useDialogs";
 import { FC, useMemo } from "react";
 import ExpenseDialog, { ExpenseFormData } from "@/components/ExpenseDialog";
+import PaymentDialog, { PaymentFormData } from "@/components/PaymentDialog";
 import { graphql } from "@/gql";
 import { updateExpense, updatePayment } from "@/plugins/api/expenses";
 import { Expense, SplitType } from "@/plugins/api/types";
@@ -235,40 +236,31 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
   // Handle edit button click
   const handleEdit = async () => {
     try {
-      // Convert expense to ExpenseFormData format
-      const initialData: Partial<ExpenseFormData> = {
-        type: expense.type,
-        description: expense.description || "",
-        amount: expense.amount,
-        currency: expense.currency,
-        paidBy: expense.paidBy.id,
-        paidAt: new Date(expense.paidAt).toISOString().split("T")[0],
-      };
-
-      if (expense.type === "standard") {
-        initialData.splitType = expense.splitType;
-        initialData.splits = expense.splits.map((split) => ({
-          userId: split.user.id,
-          amount: split.amount,
-          percentage: split.percentage,
-        }));
-      } else if (expense.type === "payment") {
-        initialData.toUser = expense.toUser.id;
-      }
-
-      // Open the dialog and wait for the result
-      const data = await dialogs.open(ExpenseDialog, {
-        groupId,
-        initialData,
-        title: "Edit Expense",
-      });
-
-      if (!data) {
-        return;
-      }
-
       // Update the expense based on the dialog result
-      if (data.type === "standard") {
+      if (expense.type === "standard") {
+        // Open the dialog and wait for the result
+        const data = await dialogs.open(ExpenseDialog, {
+          groupId,
+          title: "Edit Expense",
+          initialData: {
+            type: expense.type,
+            description: expense.description || "",
+            amount: expense.amount,
+            currency: expense.currency,
+            paidBy: expense.paidBy.id,
+            paidAt: new Date(expense.paidAt).toISOString().split("T")[0],
+            splitType: expense.splitType,
+            splits: expense.splits.map((split) => ({
+              userId: split.user.id,
+              amount: split.amount,
+              percentage: split.percentage,
+            })),
+          },
+        });
+
+        if (!data) {
+          return;
+        }
         await updateExpense(expense.id, {
           description: data.description,
           amount: data.amount,
@@ -283,16 +275,32 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ id, onUpdate }) => {
               percentage: split.percentage,
             })) || [],
         });
-
-        onUpdate?.();
       } else {
+        // Open the dialog and wait for the result
+        const data = await dialogs.open(PaymentDialog, {
+          groupId,
+          title: "Edit Payment",
+          initialData: {
+            type: expense.type,
+            description: expense.description || "",
+            amount: expense.amount,
+            currency: expense.currency,
+            paidBy: expense.paidBy.id,
+            paidAt: new Date(expense.paidAt).toISOString().split("T")[0],
+            toUser: expense.toUser.id,
+          },
+        });
+
+        if (!data) {
+          return;
+        }
         await updatePayment(expense.id, {
           description: data.description,
           amount: data.amount,
           currency: data.currency,
           paidBy: data.paidBy,
           paidAt: new Date(data.paidAt),
-          toUser: data.toUser,
+          toUser: data.toUser!,
         });
       }
 

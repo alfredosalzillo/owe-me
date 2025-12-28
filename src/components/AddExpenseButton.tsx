@@ -1,9 +1,8 @@
-import AddIcon from "@mui/icons-material/Add";
 import { Fab, Tooltip } from "@mui/material";
 import { useDialogs } from "@toolpad/core/useDialogs";
 import { FC } from "react";
 import ExpenseDialog from "@/components/ExpenseDialog";
-import { addExpense, addPayment } from "@/plugins/api/expenses";
+import { addExpense } from "@/plugins/api/expenses";
 
 type AddExpenseButtonProps = {
   groupId: string;
@@ -14,8 +13,10 @@ const AddExpenseButton: FC<AddExpenseButtonProps> = ({ groupId, onAdd }) => {
   const dialogs = useDialogs();
 
   return (
-    <Tooltip title="Add Expense or Payment">
+    <Tooltip title="Add Expense">
       <Fab
+        variant="extended"
+        size="medium"
         color="primary"
         aria-label="add"
         onClick={async () => {
@@ -30,31 +31,20 @@ const AddExpenseButton: FC<AddExpenseButtonProps> = ({ groupId, onAdd }) => {
               return;
             }
 
-            if (data.type === "standard") {
-              await addExpense(groupId, {
-                description: data.description,
-                amount: data.amount,
-                currency: data.currency,
-                paidBy: data.paidBy,
-                paidAt: new Date(data.paidAt),
-                splitType: data.splitType,
-                splits:
-                  data.splits?.map((split) => ({
-                    user: split.userId,
-                    amount: split.amount,
-                    percentage: split.percentage,
-                  })) || [],
-              });
-            } else {
-              await addPayment(groupId, {
-                description: data.description,
-                amount: data.amount,
-                currency: data.currency,
-                paidBy: data.paidBy,
-                paidAt: new Date(data.paidAt),
-                toUser: data.toUser!,
-              });
-            }
+            await addExpense(groupId, {
+              description: data.description,
+              amount: data.amount,
+              currency: data.currency,
+              paidBy: data.paidBy,
+              paidAt: new Date(data.paidAt),
+              splitType: data.splitType,
+              splits:
+                data.splits?.map((split) => ({
+                  user: split.userId,
+                  amount: split.amount,
+                  percentage: split.percentage,
+                })) || [],
+            });
 
             // Refresh the expenses list
             onAdd?.();
@@ -70,7 +60,7 @@ const AddExpenseButton: FC<AddExpenseButtonProps> = ({ groupId, onAdd }) => {
           right: 16,
         }}
       >
-        <AddIcon />
+        Add Expense
       </Fab>
     </Tooltip>
   );

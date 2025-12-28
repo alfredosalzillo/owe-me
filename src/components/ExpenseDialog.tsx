@@ -7,13 +7,10 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   InputAdornment,
   InputLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
   Select,
   TextField,
   Typography,
@@ -25,17 +22,15 @@ import { SplitType } from "@/plugins/api/types";
 import useGroupCurrencySettings from "@/plugins/api/useGroupCurrencySettings";
 import useGroupMembers from "@/plugins/api/useGroupMembers";
 
-export type ExpenseType = "standard" | "payment";
 export type ExpenseFormData = {
-  type: ExpenseType;
+  type: "standard";
   description: string;
   amount: number;
   currency: string;
   paidBy: string;
   paidAt: string;
   splitType: SplitType;
-  toUser?: string;
-  splits?: Array<{
+  splits: Array<{
     userId: string;
     amount: number;
     percentage?: number;
@@ -63,7 +58,7 @@ const ExpenseDialog = ({
   // Initialize form with react-hook-form
   const { control, watch, setValue } = useForm<ExpenseFormData>({
     defaultValues: {
-      type: initialData?.type || "standard",
+      type: "standard",
       description: initialData?.description || "",
       amount: initialData?.amount || 0,
       currency: initialData?.currency || defaultCurrency,
@@ -73,7 +68,6 @@ const ExpenseDialog = ({
         members[0]?.id,
       paidAt: initialData?.paidAt || new Date().toISOString().split("T")[0],
       splitType: initialData?.splitType || "EQUAL",
-      toUser: initialData?.toUser || "",
       splits: initialData?.splits || [],
     },
   });
@@ -84,7 +78,7 @@ const ExpenseDialog = ({
   // Calculate splits when amount, splitType, or paidBy changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: should not be called when splits change
   useEffect(() => {
-    if (formData.type === "standard" && members.length > 0) {
+    if (members.length > 0) {
       const totalAmount = formData.amount || 0;
       let newSplits: ExpenseFormData["splits"] = [];
 
@@ -122,14 +116,7 @@ const ExpenseDialog = ({
 
       setValue("splits", newSplits);
     }
-  }, [
-    formData.amount,
-    formData.splitType,
-    formData.paidBy,
-    formData.type,
-    members,
-    setValue,
-  ]);
+  }, [formData.amount, formData.splitType, formData.paidBy, members, setValue]);
 
   const handleSplitAmountChange = (userId: string, amount: number) => {
     if (formData.splits) {
@@ -162,68 +149,24 @@ const ExpenseDialog = ({
       onClose={() => onClose()}
       slotProps={{ paper: { variant: "outlined" } }}
     >
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle>{title || "Add Expense"}</DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 3, mt: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
           <Controller
-            name="type"
+            name="description"
             control={control}
-            render={({ field }) => (
-              <RadioGroup
-                row
+            rules={{ required: "Description is required" }}
+            render={({ field, fieldState }) => (
+              <TextField
+                label="Description"
+                fullWidth
                 {...field}
-                onChange={(e) => {
-                  field.onChange(e);
-                  // Ensure the value is properly typed
-                  setValue("type", e.target.value as "standard" | "payment");
-                }}
-              >
-                <FormControlLabel
-                  value="standard"
-                  control={<Radio />}
-                  label="Expense"
-                />
-                <FormControlLabel
-                  value="payment"
-                  control={<Radio />}
-                  label="Payment"
-                />
-              </RadioGroup>
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                required
+              />
             )}
           />
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {formData.type === "standard" && (
-            <Controller
-              name="description"
-              control={control}
-              rules={{ required: "Description is required for expenses" }}
-              render={({ field, fieldState }) => (
-                <TextField
-                  label="Description"
-                  fullWidth
-                  {...field}
-                  error={!!fieldState.error}
-                  helperText={fieldState.error?.message}
-                  required
-                />
-              )}
-            />
-          )}
-
-          {formData.type === "payment" && (
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="Description (Optional)"
-                  fullWidth
-                  {...field}
-                />
-              )}
-            />
-          )}
 
           <Box sx={{ display: "flex", gap: 2 }}>
             <Controller
@@ -315,126 +258,86 @@ const ExpenseDialog = ({
             />
           </Box>
 
-          {formData.type === "payment" && (
-            <Controller
-              name="toUser"
-              control={control}
-              rules={{
-                required: "Recipient is required for payments",
-                validate: (value) =>
-                  value !== formData.paidBy ||
-                  "Recipient cannot be the same as payer",
-              }}
-              render={({ field, fieldState }) => (
-                <FormControl fullWidth error={!!fieldState.error}>
-                  <InputLabel>Paid To</InputLabel>
-                  <Select {...field} label="Paid To" required>
-                    {members
-                      .filter((member) => member.id !== formData.paidBy)
-                      .map((member) => (
-                        <MenuItem key={member.id} value={member.id}>
-                          {member.name} {member.isMe ? "(You)" : ""}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                  {fieldState.error && (
-                    <FormHelperText>{fieldState.error.message}</FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-          )}
+          <Divider sx={{ my: 1 }} />
+          <Typography variant="subtitle1">Split Details</Typography>
 
-          {formData.type === "standard" && (
-            <>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1">Split Details</Typography>
+          <Controller
+            name="splitType"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth>
+                <InputLabel>Split Type</InputLabel>
+                <Select {...field} label="Split Type">
+                  <MenuItem value="EQUAL">Equal</MenuItem>
+                  <MenuItem value="PERCENTAGE">Percentage</MenuItem>
+                  <MenuItem value="CUSTOM">Custom</MenuItem>
+                </Select>
+              </FormControl>
+            )}
+          />
 
-              <Controller
-                name="splitType"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel>Split Type</InputLabel>
-                    <Select {...field} label="Split Type">
-                      <MenuItem value="EQUAL">Equal</MenuItem>
-                      <MenuItem value="PERCENTAGE">Percentage</MenuItem>
-                      <MenuItem value="CUSTOM">Custom</MenuItem>
-                    </Select>
-                  </FormControl>
-                )}
-              />
+          {formData.splits && formData.splits.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              {formData.splits.map((split) => {
+                const member = members.find((m) => m.id === split.userId);
+                return (
+                  <Box
+                    key={split.userId}
+                    sx={{ display: "flex", gap: 2, mb: 1 }}
+                  >
+                    <Typography sx={{ width: "30%", pt: 1 }}>
+                      {member?.name} {member?.isMe ? "(You)" : ""}
+                    </Typography>
 
-              {formData.splits && formData.splits.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  {formData.splits.map((split) => {
-                    const member = members.find((m) => m.id === split.userId);
-                    return (
-                      <Box
-                        key={split.userId}
-                        sx={{ display: "flex", gap: 2, mb: 1 }}
-                      >
-                        <Typography sx={{ width: "30%", pt: 1 }}>
-                          {member?.name} {member?.isMe ? "(You)" : ""}
-                        </Typography>
+                    {formData.splitType === "PERCENTAGE" ? (
+                      <TextField
+                        label="Percentage"
+                        type="number"
+                        value={split.percentage || 0}
+                        onChange={(e) =>
+                          handleSplitPercentageChange(
+                            split.userId,
+                            parseFloat(e.target.value) || 0,
+                          )
+                        }
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">%</InputAdornment>
+                            ),
+                          },
+                        }}
+                        sx={{ width: "35%" }}
+                      />
+                    ) : null}
 
-                        {formData.splitType === "PERCENTAGE" ? (
-                          <TextField
-                            label="Percentage"
-                            type="number"
-                            value={split.percentage || 0}
-                            onChange={(e) =>
-                              handleSplitPercentageChange(
-                                split.userId,
-                                parseFloat(e.target.value) || 0,
-                              )
-                            }
-                            slotProps={{
-                              input: {
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    %
-                                  </InputAdornment>
-                                ),
-                              },
-                            }}
-                            sx={{ width: "35%" }}
-                          />
-                        ) : null}
-
-                        <TextField
-                          label="Amount"
-                          type="number"
-                          value={split.amount}
-                          onChange={(e) =>
-                            handleSplitAmountChange(
-                              split.userId,
-                              parseFloat(e.target.value) || 0,
-                            )
-                          }
-                          disabled={formData.splitType !== "CUSTOM"}
-                          slotProps={{
-                            input: {
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  $
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                          sx={{
-                            width:
-                              formData.splitType === "PERCENTAGE"
-                                ? "35%"
-                                : "70%",
-                          }}
-                        />
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-            </>
+                    <TextField
+                      label="Amount"
+                      type="number"
+                      value={split.amount}
+                      onChange={(e) =>
+                        handleSplitAmountChange(
+                          split.userId,
+                          parseFloat(e.target.value) || 0,
+                        )
+                      }
+                      disabled={formData.splitType !== "CUSTOM"}
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        },
+                      }}
+                      sx={{
+                        width:
+                          formData.splitType === "PERCENTAGE" ? "35%" : "70%",
+                      }}
+                    />
+                  </Box>
+                );
+              })}
+            </Box>
           )}
         </Box>
       </DialogContent>

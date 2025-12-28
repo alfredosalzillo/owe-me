@@ -1,13 +1,6 @@
 import { useSuspenseFragment } from "@apollo/client/react";
 import SettingsIcon from "@mui/icons-material/Settings";
-import {
-  AppBar,
-  Avatar,
-  Box,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@mui/material";
+import { AppBar, Avatar, IconButton, Toolbar, Typography } from "@mui/material";
 import Container from "@mui/material/Container";
 import { FC } from "react";
 import BackIconButton from "@/components/BackIconButton";
