@@ -421,6 +421,26 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      invite_by_token: {
+        Args: { p_token: string };
+        Returns: {
+          created_at: string;
+          created_by: string;
+          email: string | null;
+          expires_at: string;
+          group_id: string;
+          id: string;
+          invited_user_id: string | null;
+          token: string;
+          used_at: string | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "group_invites";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       is_group_admin: { Args: { gid: string }; Returns: boolean };
       is_group_member: { Args: { gid: string }; Returns: boolean };
       me: {

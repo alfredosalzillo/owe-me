@@ -1482,6 +1482,7 @@ type Query {
     """Sort order to apply to the collection"""
     orderBy: [GroupMemberOrderBy!]
   ): GroupMemberConnection
+  inviteByToken(pToken: UUID!): GroupInvite
   isGroupAdmin(gid: UUID!): Boolean
   isGroupMember(gid: UUID!): Boolean
   me: Profile

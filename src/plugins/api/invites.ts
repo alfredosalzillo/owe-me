@@ -7,17 +7,14 @@ import supabase from "@/plugins/supabase/client";
 
 const GetInviteDocument = graphql(`
     query GetInvite($token: UUID!) {
-        groupInviteCollection(filter: { token: { eq: $token } }) {
-            edges {
-                node {
-                    id
-                    token
-                    groupId
-                    email
-                    group {
-                        name
-                    }
-                }
+        invite: inviteByToken(pToken: $token) {
+            id
+            token
+            groupId
+            email
+            group {
+                id
+                name
             }
         }
     }
@@ -62,5 +59,5 @@ export const useInvite = (token: string) => {
     },
   });
 
-  return data?.groupInviteCollection?.edges[0]?.node;
+  return data?.invite;
 };
