@@ -39,7 +39,7 @@ const JoinGroupPage = () => {
 
       const success = await acceptInvite(token!);
       if (success) {
-        navigate(`/groups/${invite.groupId}`);
+        navigate(`/groups/${invite.groupId}`, { replace: true });
         return;
       }
       notifications.show(
