@@ -1,3 +1,4 @@
+import { Box, CircularProgress } from "@mui/material";
 import React, { FC, ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router";
 import supabase from "@/plugins/supabase/client";
@@ -30,7 +31,17 @@ const Authorized: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, []);
 
   if (loading) {
-    return null;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
   if (!authenticated) {
     return (
