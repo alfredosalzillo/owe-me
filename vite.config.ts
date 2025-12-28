@@ -13,6 +13,7 @@ export default defineConfig({
     }),
     vitePluginReactAppRouter({
       root: "src",
+      routerHelpersFileName: "src/plugins/app-router-helpers.ts"
     }),
     tsconfigPaths(),
   ],

@@ -1,16 +1,21 @@
+import fs from "node:fs";
 import deepEqual from "deep-equal";
 import { Plugin } from "vite";
-import { createRouterFileCode, parse } from "./route-tree";
+import { createRouterFileCode, createRoutesHelpers, parse } from "./route-tree";
 
 const routerModuleId = "vite-plugin-react-app-router/router";
 export type VitePluginReactAppRouterConfig = {
   root?: string;
+  routerHelpersFileName?: string;
 };
 const vitePluginReactAppRouter = (
   config: VitePluginReactAppRouterConfig,
 ): Plugin => {
   const root = config.root ?? "src";
+  const routerHelpersFileName =
+    config.routerHelpersFileName ?? `${root}/app-router-helpers.ts`;
   let tree = parse(root);
+
   return {
     name: "vite-plugin-react-app-router",
     resolveId(id) {
@@ -24,6 +29,7 @@ const vitePluginReactAppRouter = (
         return;
       }
       tree = parse(root);
+      fs.writeFileSync(routerHelpersFileName, createRoutesHelpers(tree));
       return createRouterFileCode("/src", tree);
     },
     handleHotUpdate: (context) => {

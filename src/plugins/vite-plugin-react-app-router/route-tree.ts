@@ -42,7 +42,7 @@ const parseSegment = (segment: string): RouteSegment => {
   // test for virtual segments, e.g. (index)
   if (/^\([^)]*\)$/.test(segment)) {
     return {
-      type: "dynamic",
+      type: "virtual",
       name: segment.slice(1, -1),
       path: ``,
     };
@@ -242,5 +242,60 @@ export const createRouterFileCode = (root: string, tree: RouteNode) => {
     ]);
     
     export default () => React.createElement(RouterProvider, { router });
+  `;
+};
+
+const getRoutePaths = (
+  node: RouteNode,
+  parentParams?: Record<string, string | null>,
+): Array<{
+  path: string;
+  params?: Record<string, string | null>;
+}> => {
+  if (node.segment.type === "virtual") {
+    return node.children
+      .map((node) => getRoutePaths(node, parentParams))
+      .flat();
+  }
+  const params: Record<string, string | null> = {
+    ...parentParams,
+    [node.segment.name]: node.segment.type === "dynamic" ? "string" : null,
+  };
+  return [
+    {
+      path: node.path,
+      params,
+    },
+    node.children.map((node) => getRoutePaths(node, params)).flat(),
+  ].flat();
+};
+export const createRoutesHelpers = (tree: RouteNode) => {
+  const paths = getRoutePaths(tree);
+  // language=typescript
+  return dedent`
+    export type RoutePath = ${paths.map((path) => `"${path.path}"`).join(" | ")};
+    export type RouteParamsMap = {
+      ${paths
+        .map(({ path, params }) => {
+          const validParams = Object.entries(params ?? {}).filter(
+            ([_, type]) => !!type,
+          );
+          return `"${path}": ${
+            validParams.length > 0
+              ? `{${validParams
+                  .map(([name, type]) => `"${name}": ${type},`)
+                  .join("\n")}}`
+              : "{}"
+          }`;
+        })
+        .join("\n")}
+      };
+    export const route = <Path extends RoutePath>(path: Path, params: RouteParamsMap[Path]) => {
+        const paramsMap = new Map(Object.entries(params));
+        return (path as string).split('/')
+            .filter((segment) => segment.startsWith('('))
+            .map((segment) => segment.startsWith('[') ? paramsMap.get(segment.slice(1, -1)) : segment)
+            .join('/')
+    }
   `;
 };

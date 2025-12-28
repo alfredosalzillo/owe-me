@@ -12,7 +12,7 @@
       "config.ts",
       "next.config.ts",
       "!src/gql/**",
-      "!src/@types/supabase.ts"
+      "!src/plugins/app-router-helpers.ts"
     ]
   },
   "formatter": {
