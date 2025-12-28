@@ -54,7 +54,6 @@ const SettingsForm: FC = () => {
     throw new Error("User not found");
   }
   const [updateProfile, { loading }] = useMutation(UpdateProfileMutation);
-  const navigate = useNavigate();
 
   const [name, setName] = useState(data.me?.name || "");
   const [avatarUrl, setAvatarUrl] = useState(data.me?.avatarUrl || "");
@@ -108,7 +107,9 @@ const SettingsForm: FC = () => {
         avatarUrl,
       },
     });
-    navigate(-1);
+    notifications.show("Profile updated successfully", {
+      severity: "success",
+    });
   };
 
   return (
