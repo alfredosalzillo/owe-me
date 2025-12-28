@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Container,
@@ -7,6 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useNotifications } from "@toolpad/core";
 import React, { useState } from "react";
 import config from "@/config";
 import supabase from "@/plugins/supabase/client";
@@ -14,34 +14,28 @@ import supabase from "@/plugins/supabase/client";
 const Page = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const notifications = useNotifications();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setMessage(null);
     setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${config.siteUrl}/auth/confirm`,
-        },
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${config.siteUrl}/auth/confirm`,
+      },
+    });
+    if (error) {
+      notifications.show(error.message ?? "Failed to send magic link.", {
+        severity: "error",
       });
-      if (error) {
-        throw error;
-      }
-      setMessage("Check your email for the magic link to log in.");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err?.message ?? "Failed to send magic link.");
-        return;
-      }
-      setError("Failed to send magic link.");
-    } finally {
       setLoading(false);
+      return;
     }
+    notifications.show("Check your email for the magic link to log in.", {
+      severity: "success",
+    });
+    setLoading(false);
   };
 
   return (
@@ -67,20 +61,11 @@ const Page = () => {
             variant="contained"
             sx={{ mt: 2 }}
             disabled={loading || !email}
+            loading={loading}
           >
-            {loading ? "Sending..." : "Send magic link"}
+            Send magic link
           </Button>
         </Box>
-        {message && (
-          <Alert sx={{ mt: 2 }} severity="success">
-            {message}
-          </Alert>
-        )}
-        {error && (
-          <Alert sx={{ mt: 2 }} severity="error">
-            {error}
-          </Alert>
-        )}
       </Paper>
     </Container>
   );
