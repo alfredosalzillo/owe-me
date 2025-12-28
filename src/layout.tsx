@@ -9,9 +9,9 @@ const RootLayout: FC<{ children: ReactNode }> = ({ children }) => (
   <ApolloProvider client={apolloClient}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <DialogsProvider>
-        <NotificationsProvider>{children}</NotificationsProvider>
-      </DialogsProvider>
+      <NotificationsProvider>
+        <DialogsProvider>{children}</DialogsProvider>
+      </NotificationsProvider>
     </ThemeProvider>
   </ApolloProvider>
 );
