@@ -11,9 +11,8 @@ export type RouteParamsMap = {
 "/login": {}
   };
 export const route = <Path extends RoutePath>(path: Path, params: RouteParamsMap[Path]) => {
-    const paramsMap = new Map(Object.entries(params));
-    return (path as string).split('/')
-        .filter((segment) => segment.startsWith('('))
-        .map((segment) => segment.startsWith('[') ? paramsMap.get(segment.slice(1, -1)) : segment)
-        .join('/')
+  return (path as string).split('/')
+    .filter((segment) => !segment.startsWith('('))
+    .map((segment) => segment.startsWith('[') ? (params as Record<string, string>)[segment.slice(1, -1)] : segment)
+    .join('/') || '/'
 }
