@@ -1,17 +1,16 @@
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   InputAdornment,
   TextField,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DialogProps, useNotifications } from "@toolpad/core";
 import React, { useState } from "react";
+import CopyIconButton from "@/components/CopyIconButton";
 import { createInvite } from "@/plugins/api/invites";
 
 export type InviteMemberDialogProps = DialogProps<{ groupId: string }, void>;
@@ -37,13 +36,6 @@ const InviteMemberDialog = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(inviteLink);
-    notifications.show("Invite link copied to clipboard", {
-      severity: "success",
-    });
   };
 
   return (
@@ -75,9 +67,7 @@ const InviteMemberDialog = ({
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton onClick={copyToClipboard} edge="end">
-                        <ContentCopyIcon />
-                      </IconButton>
+                      <CopyIconButton value={inviteLink} />
                     </InputAdornment>
                   ),
                 },
