@@ -30,7 +30,7 @@ const vitePluginReactAppRouter = (
       }
       tree = parse(root);
       fs.writeFileSync(routerHelpersFileName, createRoutesHelpers(tree));
-      return createRouterFileCode("/src", tree);
+      return createRouterFileCode(root, tree);
     },
     handleHotUpdate: (context) => {
       const newTree = parse(root);

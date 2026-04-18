@@ -159,11 +159,15 @@ const createElementString = (
   return `React.createElement(${component}, ${JSON.stringify(props)}, ${createChildrenString(children)})`;
 };
 
+const createImportPath = (root: string, filePath: string) => {
+  return `/${path.posix.join(root, filePath)}`;
+};
+
 const nodeToNotFoundCode = (root: string, node: RouteNode): string | null => {
   if (!node.notFound) {
     return null;
   }
-  const Component = `React.lazy(() => import("${path.join(root, node.path, node.notFound)}"))`;
+  const Component = `React.lazy(() => import("${createImportPath(root, path.join(node.path, node.notFound))}"))`;
   return dedent`
     {
       path: "*",
@@ -182,7 +186,7 @@ const nodeToIndexCode = (root: string, node: RouteNode): string => {
         .join(",\n"),
     );
   }
-  const Component = `React.lazy(() => import("${path.join(root, node.path, node.page)}"))`;
+  const Component = `React.lazy(() => import("${createImportPath(root, path.join(node.path, node.page))}"))`;
   return dedent(
     [
       dedent`
@@ -202,7 +206,7 @@ const nodeToTemplateCode = (root: string, node: RouteNode): string => {
   if (!node.template) {
     return nodeToIndexCode(root, node);
   }
-  const Component = `React.lazy(() => import("${path.join(root, node.path, node.template)}"))`;
+  const Component = `React.lazy(() => import("${createImportPath(root, path.join(node.path, node.template))}"))`;
   return dedent`
     {
       shouldRevalidate: ({ prevUrl, nextUrl }) => prevUrl.pathname !== nextUrl.pathname,
@@ -215,10 +219,10 @@ const nodeToTemplateCode = (root: string, node: RouteNode): string => {
 };
 const nodeToLayoutCode = (root: string, node: RouteNode): string => {
   const Component = node.layout
-    ? `React.lazy(() => import("${path.join(root, node.path, node.layout)}"))`
+    ? `React.lazy(() => import("${createImportPath(root, path.join(node.path, node.layout))}"))`
     : "React.Fragment";
   const ErrorComponent = node.error
-    ? `React.lazy(() => import("${path.join(root, node.path, node.error)}"))`
+    ? `React.lazy(() => import("${createImportPath(root, path.join(node.path, node.error))}"))`
     : null;
   return dedent`
     {
