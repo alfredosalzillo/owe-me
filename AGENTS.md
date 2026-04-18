@@ -1,13 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
-
 ## Project Overview
-This is a Next.js (App Router) project called `dmenu`. It uses Supabase for the backend, MUI and @toolpad/core for the UI, and Biome for linting and formatting.
+This is a Vite + React project called `owe-me`. It uses Supabase for the backend, MUI and @toolpad/core for the UI, and Biome for linting and formatting.
+
+The project uses the local plugin `src/plugins/vite-plugin-react-app-router` to provide Next.js-style file-based routing conventions (`app/**` with `page`, `layout`, `template`, dynamic `[param]`, and virtual `(group)` segments) on top of React Router.
 
 ## Dev Environment Setup
 - Install dependencies: `npm install`
