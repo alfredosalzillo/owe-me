@@ -56,7 +56,7 @@ The project uses the local plugin `src/plugins/vite-plugin-react-app-router` to 
   - Prefer mapping over data from local JSON files to render these components.
 
 - **Skills**:
-  - Always use the rules skills in the `.junie/skill/**` directory.
+  - Always use the rules skills in the `.junie/skills/**` directory.
 
 - **Forms**:
   - Use `formik` and `yup` for form handling and validation.
