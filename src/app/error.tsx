@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import React, { useMemo } from "react";
 import { isRouteErrorResponse, Link, useRouteError } from "react-router";
+import theme from "@/app/theme";
 import { route } from "@/plugins/app-router-helpers";
-import theme from "@/theme";
 
 const RootError: React.FC = () => {
   const error = useRouteError();
