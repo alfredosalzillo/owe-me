@@ -3,10 +3,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import {
-  AppBar,
   Button,
   CircularProgress,
-  Container,
   Divider,
   Drawer,
   IconButton,
@@ -16,12 +14,14 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import React, { FC, Suspense, useState } from "react";
 import { useNavigate } from "react-router";
 import GroupList from "@/components/GroupList";
+import PageContent from "@/components/ui/PageContent";
+import PageShell from "@/components/ui/PageShell";
+import PageTopBar from "@/components/ui/PageTopBar";
 import config from "@/config";
 import { graphql } from "@/gql";
 import useCreateGroup from "@/plugins/api/useCreateGroup";
@@ -56,16 +56,9 @@ const Header: FC<HeaderProps> = ({ onCreateGroup }) => {
 
   return (
     <Box>
-      <AppBar
-        position="static"
-        variant="outlined"
-        sx={{
-          borderTop: 0,
-          borderRight: 0,
-          borderLeft: 0,
-        }}
-      >
-        <Toolbar>
+      <PageTopBar
+        title={config.siteName}
+        startAction={
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -75,14 +68,13 @@ const Header: FC<HeaderProps> = ({ onCreateGroup }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {config.siteName}
-          </Typography>
+        }
+        actions={
           <Button color="inherit" onClick={createGroupAndNavigate}>
             New Group
           </Button>
-        </Toolbar>
-      </AppBar>
+        }
+      />
       <Drawer
         open={drawerOpen}
         onClose={toggleDrawer}
@@ -139,51 +131,39 @@ const Home = () => {
   const { refetch } = useSuspenseQuery(HomeDocument);
   const navigate = useNavigate();
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-      }}
+    <PageShell
+      header={
+        <Header
+          onCreateGroup={async (groupId) => {
+            await refetch();
+            navigate(route("/(private)/groups/[id]", { id: groupId }));
+          }}
+        />
+      }
     >
-      <Header
-        onCreateGroup={async (groupId) => {
-          await refetch();
-          navigate(route("/(private)/groups/[id]", { id: groupId }));
-        }}
-      />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 0,
-          width: "100%",
-        }}
-      >
-        <Container disableGutters sx={{ pt: 2, pb: 2 }}>
-          <Suspense
-            fallback={
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            }
-          >
-            <GroupList
-              onCreateGroup={async (groupId) => {
-                await refetch();
-                navigate(route("/(private)/groups/[id]", { id: groupId }));
+      <PageContent>
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            />
-          </Suspense>
-        </Container>
-      </Box>
-    </Box>
+            >
+              <CircularProgress />
+            </Box>
+          }
+        >
+          <GroupList
+            onCreateGroup={async (groupId) => {
+              await refetch();
+              navigate(route("/(private)/groups/[id]", { id: groupId }));
+            }}
+          />
+        </Suspense>
+      </PageContent>
+    </PageShell>
   );
 };
 

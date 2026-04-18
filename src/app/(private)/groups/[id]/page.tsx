@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@apollo/client/react";
-import Box from "@mui/material/Box";
 import React from "react";
 import { useParams } from "react-router";
 import Group from "@/components/Group";
 import GroupHeader from "@/components/GroupHeader";
+import PageShell from "@/components/ui/PageShell";
 import { graphql } from "@/gql";
 
 const GroupPageDocument = graphql(`
@@ -30,25 +30,9 @@ const GroupPage = () => {
   }
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-      }}
-    >
-      <GroupHeader id={id} onEdit={() => refetch()} />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 0,
-          width: "100%",
-        }}
-      >
-        <Group id={id} onUpdate={refetch} />
-      </Box>
-    </Box>
+    <PageShell header={<GroupHeader id={id} onEdit={() => refetch()} />}>
+      <Group id={id} onUpdate={refetch} />
+    </PageShell>
   );
 };
 

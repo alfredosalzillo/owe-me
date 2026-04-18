@@ -1,22 +1,21 @@
 import { useMutation, useSuspenseQuery } from "@apollo/client/react";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import UploadAvatarIcon from "@mui/icons-material/Edit";
 import {
-  AppBar,
   Avatar,
   Badge,
   Box,
   Button,
   CircularProgress,
-  Container,
   IconButton,
   TextField,
-  Toolbar,
-  Typography,
 } from "@mui/material";
 import { useNotifications } from "@toolpad/core";
 import React, { FC, Suspense, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import PageContent from "@/components/ui/PageContent";
+import PageShell from "@/components/ui/PageShell";
+import PageTopBar from "@/components/ui/PageTopBar";
+import SectionCard from "@/components/ui/SectionCard";
 import { graphql } from "@/gql";
 import supabase from "@/plugins/supabase/client";
 
@@ -113,7 +112,7 @@ const SettingsForm: FC = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
+    <PageContent>
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -124,65 +123,74 @@ const SettingsForm: FC = () => {
           alignItems: "center",
         }}
       >
-        <Box sx={{ position: "relative" }}>
-          <Badge
-            color="primary"
-            slotProps={{
-              badge: {
-                sx: {
-                  width: 40,
-                  height: 40,
-                },
-              },
-            }}
-            badgeContent={
-              <IconButton
-                size="large"
-                loading={uploading}
-                component="label"
-                sx={{ borderRadius: "50%" }}
-              >
-                <UploadAvatarIcon />
-                <input
-                  type="file"
-                  hidden
-                  onChange={uploadImage}
-                  accept="image/*"
-                />
-              </IconButton>
-            }
-            overlap="circular"
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
+        <SectionCard>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              alignItems: "center",
             }}
           >
-            <Avatar src={avatarUrl} sx={{ width: 120, height: 120 }} />
-          </Badge>
-        </Box>
-        <TextField
-          label="Name"
-          variant="outlined"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          fullWidth
-          required
-          slotProps={{
-            inputLabel: { shrink: true },
-          }}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={loading || uploading}
-          size="large"
-          fullWidth
-        >
-          Save Changes
-        </Button>
+            <Box sx={{ position: "relative" }}>
+              <Badge
+                color="primary"
+                slotProps={{
+                  badge: {
+                    sx: {
+                      width: 40,
+                      height: 40,
+                    },
+                  },
+                }}
+                badgeContent={
+                  <IconButton
+                    size="large"
+                    loading={uploading}
+                    component="label"
+                    sx={{ borderRadius: "50%" }}
+                  >
+                    <UploadAvatarIcon />
+                    <input
+                      type="file"
+                      hidden
+                      onChange={uploadImage}
+                      accept="image/*"
+                    />
+                  </IconButton>
+                }
+                overlap="circular"
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+              >
+                <Avatar src={avatarUrl} sx={{ width: 120, height: 120 }} />
+              </Badge>
+            </Box>
+            <TextField
+              label="Name"
+              variant="outlined"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
+            <Button
+              type="submit"
+              color="primary"
+              disabled={loading || uploading}
+              size="large"
+              fullWidth
+            >
+              Save Changes
+            </Button>
+          </Box>
+        </SectionCard>
       </Box>
-    </Container>
+    </PageContent>
   );
 };
 
@@ -190,27 +198,9 @@ const SettingsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar
-        position="static"
-        variant="outlined"
-        sx={{ borderTop: 0, borderRight: 0, borderLeft: 0 }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="back"
-            onClick={() => navigate(-1)}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Settings
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <PageShell
+      header={<PageTopBar title="Settings" onBack={() => navigate(-1)} />}
+    >
       <Suspense
         fallback={
           <Box
@@ -218,6 +208,7 @@ const SettingsPage = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              py: 6,
             }}
           >
             <CircularProgress />
@@ -226,7 +217,7 @@ const SettingsPage = () => {
       >
         <SettingsForm />
       </Suspense>
-    </Box>
+    </PageShell>
   );
 };
 
